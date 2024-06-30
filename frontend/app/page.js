@@ -1,6 +1,6 @@
 'use client';
 import NotConnected from "@/components/shared/NotConnected";
-//import Projet3Main from "@/components/shared/Projet3Main";
+import Main from "@/components/shared/Main";
 
 import { useAccount } from "wagmi";
 
@@ -9,7 +9,7 @@ export default function Home() {
   return (
    <>
     {isConnected ? (
-      <p>Success</p>
+      <Main />
       ) :
       <NotConnected />
    }

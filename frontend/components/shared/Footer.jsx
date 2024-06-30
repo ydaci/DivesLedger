@@ -20,6 +20,23 @@ const Footer = ({children}) => {
             </AccordionContent>
         </AccordionItem>
     </Accordion>
+    <Accordion type="single" collapsible>
+    <AccordionItem value="item-1">
+         <AccordionTrigger>FAQ : </AccordionTrigger>
+            <AccordionContent>
+                Question 1 <br/>
+                Question 2  <br/>
+            </AccordionContent>
+        </AccordionItem>
+    </Accordion>
+    <Accordion type="single" collapsible>
+    <AccordionItem value="item-1">
+         <AccordionTrigger>A propos : </AccordionTrigger>
+            <AccordionContent>
+                Triangle Dive
+            </AccordionContent>
+        </AccordionItem>
+    </Accordion>
     </footer>
     )
 }
