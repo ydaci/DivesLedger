@@ -47,11 +47,22 @@ const {
                 // Try to add the same instructor again and expect it to revert
                 await expect(divesLedger.addInstructor(instructor.address)).to.be.revertedWith("The instructor is already registered.");
             });
-            //Remove tests
             it("Should revert if an address is not registered as an instructor", async function () {
                 const { divesLedger, nonInstructor } = await loadFixture(deployDivesLedger);
                 // Try to remove addr1 which is not an instructor and expect it to revert
                 await expect(divesLedger.removeInstructor(nonInstructor.address)).to.be.revertedWith("The address is not registered as an instructor.");
+            });
+            it("Should allow the owner to remove an instructor", async function () {
+                const { divesLedger, owner, instructor } = await loadFixture(deployDivesLedger);
+                await divesLedger.connect(owner).addInstructor(instructor.address);
+                await divesLedger.connect(owner).removeInstructor(instructor.address);
+                expect(await divesLedger.instructors(instructor.address)).to.be.false;
+            });
+          
+            it("Should not allow non-owners to remove an instructor", async function () {
+                const { divesLedger, owner, addr1, instructor } = await loadFixture(deployDivesLedger);
+                await divesLedger.connect(owner).addInstructor(instructor.address);
+                expect(divesLedger.connect(addr1).removeInstructor(instructor.address)).to.be.revertedWith("Only owner can call this function");
             });
             it("Should remove an instructor", async function () {
                 const { divesLedger, instructor } = await loadFixture(deployDivesLedger);
@@ -64,9 +75,13 @@ const {
                 // Check if addr1 is no longer an instructor
                 expect(await divesLedger.instructors(instructor.address)).to.equal(false);
               });
-              it("Should revert if not called by the owner", async function () {
+              it("Should revert removeInstructor if not called by the owner", async function () {
                 const { divesLedger, instructor } = await loadFixture(deployDivesLedger);
                 expect(divesLedger.connect(instructor).removeInstructor(instructor.address)).to.be.revertedWith("Only owner can call this function");        
+              });
+              it("Should not allow removing a non-registered instructor", async function () {
+                const { divesLedger, instructor } = await loadFixture(deployDivesLedger);
+                await expect(divesLedger.removeInstructor(instructor.address)).to.be.revertedWith("The address is not registered as an instructor.");
               });
         });
 
@@ -252,6 +267,24 @@ const {
                 expect(certifications[1].issuingOrganization).to.equal(issuingOrganization2);
                 expect(certifications[1].issueDate).to.equal(issueDate2);
             });
+        });
+        describe("Mint management", function () {
+            it("Should not allow non-owners to mint a new token", async function () {
+                const { divesLedger, diver, addr1 } = await loadFixture(deployDivesLedger);
+                await expect(divesLedger.connect(diver).safeMint(addr1.address, 1)).to.be.revertedWithCustomError(divesLedger, "OwnableUnauthorizedAccount");
+            });
+            it("Should allow the owner to mint a new token", async function () {
+                const { divesLedger, addr1 } = await loadFixture(deployDivesLedger);
+                await divesLedger.safeMint(addr1.address, 1);
+                expect(await divesLedger.ownerOf(1)).to.equal(addr1.address);
+            });
+            it("Should correctly assign the token ID to the recipient", async function () {
+                const { divesLedger, addr1 } = await loadFixture(deployDivesLedger);
+                await divesLedger.safeMint(addr1.address, 1);
+                const ownerOfToken = await divesLedger.ownerOf(1);
+                expect(ownerOfToken).to.equal(addr1.address);
+            });
+          
         });
     });
   });
