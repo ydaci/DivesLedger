@@ -13,6 +13,8 @@ contract DivesLedger is ERC721, Ownable {
     struct Dive {
         uint256 id;
         address diver;
+        string diversSurnames;
+        string diversFirstNames;
         string location;
         uint256 date; // Unix timestamp
         uint256 depth; // Depth in meters
@@ -22,6 +24,7 @@ contract DivesLedger is ERC721, Ownable {
     }
 
     struct Certification {
+        uint256 certLevel; // Used to define which diver is an instructor
         string certName;
         string issuingOrganization;
         uint256 issueDate; // Unix timestamp
@@ -35,13 +38,12 @@ contract DivesLedger is ERC721, Ownable {
     mapping(uint256 => Dive) public dives;
     mapping(address => uint256[]) public diverDives;
     mapping(address => Certification[]) public diverCertifications;
-    mapping(address => bool) public instructors;
 
     /*************************************
     *              Events                *
     **************************************/
 
-    event DiveAdded(uint256 id, address indexed diver, string location, uint256 date, uint256 depth, uint256 duration, string notes);
+    event DiveAdded(uint256 id, address indexed diver, string diversSurnames, string diversFirstNames, string location, uint256 date, uint256 depth, uint256 duration, string notes);
     event DiveValidated(uint256 id, address indexed instructor);
     event CertificationAdded(address indexed diver, string certName, string issuingOrganization, uint256 issueDate);
 
@@ -59,26 +61,20 @@ contract DivesLedger is ERC721, Ownable {
     **************************************/
 
      modifier onlyInstructor() {
-        require(instructors[msg.sender], "Only an instructor can perform this action.");
+        require(isInstructor(msg.sender), "Only an instructor can perform this action.");
         _;
     }
 
     /*************************************
     *             Functions              *
     **************************************/
-
-    function addInstructor(address _instructor) external onlyOwner {
-        require(instructors[_instructor]==false , "The instructor is already registered.");
-        instructors[_instructor] = true;
-    }
-
-    function removeInstructor(address _instructor) external onlyOwner {
-        require(instructors[_instructor]==true , "The address is not registered as an instructor.");
-        instructors[_instructor] = false;
-    }
+    //Pas le owner mais le plongeur décide de qui sera son instructeur. Le programme doit désigner s'il est bien autorisé. 
+    //Instructeur doit avoir au-dessus du niveau 3 peut être instructeur
 
     function addDive(
         string memory _location,
+        string memory _diversSurnames,
+        string memory _diversFirstNames,
         uint256 _date,
         uint256 _depth,
         uint256 _duration,
@@ -87,6 +83,8 @@ contract DivesLedger is ERC721, Ownable {
         dives[nextDiveId] = Dive({
             id: nextDiveId,
             diver: msg.sender,
+            diversSurnames: _diversSurnames,
+            diversFirstNames: _diversFirstNames,
             location: _location,
             date: _date,
             depth: _depth,
@@ -97,36 +95,63 @@ contract DivesLedger is ERC721, Ownable {
 
         diverDives[msg.sender].push(nextDiveId);
 
-        _safeMint(msg.sender, nextDiveId);
-
-        emit DiveAdded(nextDiveId, msg.sender, _location, _date, _depth, _duration, _notes);
+        emit DiveAdded(nextDiveId, msg.sender,_diversSurnames, _diversFirstNames, _location, _date, _depth, _duration, _notes);
 
         nextDiveId++;
     }
 
     function validateDive(uint256 _id) public onlyInstructor {
-        require(_id >= 0 && _id <= nextDiveId, "Dive does not exist.");
+        require(_id < nextDiveId, "Dive does not exist.");
         Dive storage dive = dives[_id];
         require(!dive.validated, "Dive is already validated.");
 
         dive.validated = true;
 
+        _safeMint(dive.diver, _id); // Recording in blockchain at validation step (not add step)
+
         emit DiveValidated(_id, msg.sender);
     }
 
+    function getCertificationName(uint256 _certLevel) public pure returns (string memory) {
+        if (_certLevel == 1) return unicode"1. Diver 1 star / Open Water Diver";
+        if (_certLevel == 2) return unicode"2. Diver 2 stars / Advanced Open Water Diver";
+        if (_certLevel == 3) return unicode"3. Diver 3 stars / Rescue Diver";
+        if (_certLevel == 4) return unicode"4. Confirmed diver / Divemaster";
+        if (_certLevel == 5) return unicode"5. Instructor assistant";
+        // minimum level to be considered as an instructor
+        if (_certLevel == 6) return unicode"6. Instructor / Dive Leader";
+        if (_certLevel == 7) return unicode"7. Instructor 2 stars";
+        if (_certLevel == 8) return unicode"8. Instructor 3 stars";
+        if (_certLevel == 9) return unicode"9. Instructor 4 stars";
+        if (_certLevel == 10) return unicode"10. Instructor 5 stars";
+        return "Unknown Certification";
+    }
+    
     function addCertification(
         address _diver,
-        string memory _certName,
+        uint256 _certLevel,
         string memory _issuingOrganization,
         uint256 _issueDate
-    ) public onlyInstructor {
+    ) public {
         diverCertifications[_diver].push(Certification({
-            certName: _certName,
+            certLevel: _certLevel,
+            certName: getCertificationName(_certLevel),
             issuingOrganization: _issuingOrganization,
             issueDate: _issueDate
         }));
 
-        emit CertificationAdded(_diver, _certName, _issuingOrganization, _issueDate);
+        emit CertificationAdded(_diver, getCertificationName(_certLevel), _issuingOrganization, _issueDate);
+    }
+    
+    // A diver with a certLevel >=6 (Dive Leader - Guide de palanqué) can be an instructor
+    function isInstructor(address _diver) public view returns (bool) {
+        Certification[] storage certifications = diverCertifications[_diver];
+        for (uint256 i = 0; i < certifications.length; i++) {
+            if (certifications[i].certLevel >= 6) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function getCertifications(address _diver) public view returns (Certification[] memory) {

@@ -33,7 +33,7 @@ const Footer = ({children}) => {
     <AccordionItem value="item-1">
          <AccordionTrigger>A propos : </AccordionTrigger>
             <AccordionContent>
-                Triangle Dive
+            DivesLedger permet l'enregistrement numérique de nos qualifications et de nos carnets des plongées sur une blockchain publique. Elle réponds aux exigences des fédérations de plongées tout en assurant des enregistrements incorruptibles et transparents, augmentant la sécurité et la fiabilité, sans risque de perte de données.
             </AccordionContent>
         </AccordionItem>
     </Accordion>

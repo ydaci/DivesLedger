@@ -5,13 +5,6 @@ const {
   const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
   const { expect, BigNumber } = require("chai");   
   const { ethers } = require("hardhat");
-//Test 1 : vérifier si une plongée a été ajoutée correctement
-//Test 2 : vérifier si et seulement si en tant qu'instructeur, je peux valider une plongée
-//Test 3 : vérifier si on peut ajouter correctement une certification
-//Test 4 : vérifier si les certifications d'un plongeur sont renvoyées correctement
-//Test 5 : vérifier si on peut récupérer correctement une plongée
-//Test 6 : vérifier si on peut récupérer correctement les plongées d'un utilisateur
-//Test 7 : vérifier si on peut minter correctement
   describe.only("DivesLedger", function () {
 
     async function deployDivesLedger() {
@@ -27,78 +20,58 @@ const {
       describe("Deployment", function () {
         //Instructors section
         describe("Instructors management", function () {
-            it("Only the owner can add an instructor", async function () {
-                const { divesLedger, instructor, diver } = await loadFixture(deployDivesLedger);
-                expect(divesLedger.connect(diver).addInstructor(instructor.address)).to.be.revertedWith("Only owner can call this function");        
+            it("Should return false if a diver has no certification", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
+                const isInstructor = await divesLedger.isInstructor(diver.address);
+                expect(isInstructor).to.equal(false);       
             });
-            //Add tests
-            it("Register an address as an instructor", async function () {
-                const { divesLedger, owner, instructor } = await loadFixture(deployDivesLedger);
-                // Add addr1 as an instructor
-                await divesLedger.connect(owner).addInstructor(instructor.address);
-
-                expect(await divesLedger.instructors(instructor.address)).to.equal(true);
+            it("Should return false if a diver has certifications below level 6", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
+                await divesLedger.addCertification(diver.address, 1 , "Organization", 1720104021);
+                await divesLedger.addCertification(diver.address, 2 , "Organization", 1720104021);
+                const isInstructor = await divesLedger.isInstructor(diver.address);
+                expect(isInstructor).to.equal(false);          
             });
-            it("Should revert if the instructor is already registered", async function () {
-                const { divesLedger, instructor } = await loadFixture(deployDivesLedger);
-                // Add addr1 as an instructor
-                await divesLedger.addInstructor(instructor.address);
+            it("Should return true if a diver has at least a certification level above level 6", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
+                await divesLedger.addCertification(diver.address, 6 , "Organization", 1720104021);
+                await divesLedger.addCertification(diver.address, 7 , "Organization", 1720104021);
+                const isInstructor = await divesLedger.isInstructor(diver.address);
+                expect(isInstructor).to.equal(true);          
+            });
+            it("Should return true if a diver has a certification level above level 6 and another below 6", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
+                await divesLedger.addCertification(diver.address, 3 , "Organization", 1720104021);
+                await divesLedger.addCertification(diver.address, 7 , "Organization", 1720104021);
+                const isInstructor = await divesLedger.isInstructor(diver.address);
+                expect(isInstructor).to.equal(true);          
+            });
+            it("Should handle multiple instructors correctly", async function () {
+                const { divesLedger, diver, instructor, addr1 } = await loadFixture(deployDivesLedger);
+                await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
+                await divesLedger.addCertification(addr1.address, 7 , "Organization", 1720104021);
             
-                // Try to add the same instructor again and expect it to revert
-                await expect(divesLedger.addInstructor(instructor.address)).to.be.revertedWith("The instructor is already registered.");
+                expect(await divesLedger.isInstructor(instructor.address)).to.equal(true);
+                expect(await divesLedger.isInstructor(addr1.address)).to.equal(true);
             });
-            it("Should revert if an address is not registered as an instructor", async function () {
-                const { divesLedger, nonInstructor } = await loadFixture(deployDivesLedger);
-                // Try to remove addr1 which is not an instructor and expect it to revert
-                await expect(divesLedger.removeInstructor(nonInstructor.address)).to.be.revertedWith("The address is not registered as an instructor.");
-            });
-            it("Should allow the owner to remove an instructor", async function () {
-                const { divesLedger, owner, instructor } = await loadFixture(deployDivesLedger);
-                await divesLedger.connect(owner).addInstructor(instructor.address);
-                await divesLedger.connect(owner).removeInstructor(instructor.address);
-                expect(await divesLedger.instructors(instructor.address)).to.be.false;
-            });
-          
-            it("Should not allow non-owners to remove an instructor", async function () {
-                const { divesLedger, owner, addr1, instructor } = await loadFixture(deployDivesLedger);
-                await divesLedger.connect(owner).addInstructor(instructor.address);
-                expect(divesLedger.connect(addr1).removeInstructor(instructor.address)).to.be.revertedWith("Only owner can call this function");
-            });
-            it("Should remove an instructor", async function () {
-                const { divesLedger, instructor } = await loadFixture(deployDivesLedger);
-                // Add addr1 as an instructor
-                await divesLedger.addInstructor(instructor.address);
-                
-                // Remove addr1 as an instructor
-                await divesLedger.removeInstructor(instructor.address);
-                
-                // Check if addr1 is no longer an instructor
-                expect(await divesLedger.instructors(instructor.address)).to.equal(false);
-              });
-              it("Should revert removeInstructor if not called by the owner", async function () {
-                const { divesLedger, instructor } = await loadFixture(deployDivesLedger);
-                expect(divesLedger.connect(instructor).removeInstructor(instructor.address)).to.be.revertedWith("Only owner can call this function");        
-              });
-              it("Should not allow removing a non-registered instructor", async function () {
-                const { divesLedger, instructor } = await loadFixture(deployDivesLedger);
-                await expect(divesLedger.removeInstructor(instructor.address)).to.be.revertedWith("The address is not registered as an instructor.");
-              });
         });
 
         //Dives section
         //Vérifier l'ajout, vérifier si on est bien sur le nextDiveId, vérifier si l'événement est bien émis
         describe("Dives management", function () {
-            it("Should add a dive correctly", async function () {
+           it("Should add a dive correctly", async function () {
                 const { divesLedger, owner } = await loadFixture(deployDivesLedger);
 
                 const location = "Tahiti";
+                const surname = "Smith";
+                const firstName = "Tom";
                 const date = 1672531199;
                 const depth = 30;
                 const duration = 45;
                 const notes = "Blue Sea";
           
                 // Add a dive
-                await divesLedger.addDive(location, date, depth, duration, notes);
+                await divesLedger.addDive(location, surname, firstName, date, depth, duration, notes);
           
                 // Get dives by owner
                 const dives = await divesLedger.getDivesByDiver(owner.address);
@@ -106,24 +79,45 @@ const {
           
                 const dive = dives[0];
                 expect(dive.location).to.equal(location);
+                expect(dive.diversSurnames).to.equal(surname);
+                expect(dive.diversFirstNames).to.equal(firstName);
                 expect(dive.date).to.equal(date);
                 expect(dive.depth).to.equal(depth);
                 expect(dive.duration).to.equal(duration);
                 expect(dive.notes).to.equal(notes);
                 expect(dive.validated).to.equal(false);
             });
-            //A réfléchir
+            it("Should add multiple dives correctly with the same diver", async function () {
+                const { divesLedger, owner } = await loadFixture(deployDivesLedger);
+            
+                const diveData = [
+                    { location: "Tahiti", surname: "Smith", firstName: "Tom", date: 1672531199, depth: 30, duration: 45, notes: "Blue Sea" },
+                    { location: "Bali", surname: "Doe", firstName: "Jane", date: 1672531299, depth: 25, duration: 50, notes: "Coral Reef" }
+                ];
+            
+                for (let dive of diveData) {
+                    await divesLedger.addDive(dive.location, dive.surname, dive.firstName, dive.date, dive.depth, dive.duration, dive.notes);
+                }
+            
+                const dives = await divesLedger.getDivesByDiver(owner.address);
+                expect(dives.length).to.equal(2);
+                expect(dives[0].location).to.equal(diveData[0].location);
+                expect(dives[1].location).to.equal(diveData[1].location);
+            });
+            //A revoir
             it("Should add a dive for a different diver", async function () {
                 const { divesLedger, diver, addr1 } = await loadFixture(deployDivesLedger);
 
                 const location = "Tahiti";
+                const surname = "Smith";
+                const firstName = "Tom";
                 const date = 1672531199;
                 const depth = 30;
                 const duration = 45;
                 const notes = "Blue Sea";
               
                 // Add a dive from a different address
-                await divesLedger.connect(addr1).addDive(location, date, depth, duration, notes);
+                await divesLedger.connect(addr1).addDive(location, surname, firstName, date, depth, duration, notes);
               
                 // Get dives by addr1
                 const dives = await divesLedger.getDivesByDiver(addr1.address);
@@ -131,6 +125,8 @@ const {
               
                 const dive = dives[0];
                 expect(dive.location).to.equal(location);
+                expect(dive.diversSurnames).to.equal(surname);
+                expect(dive.diversFirstNames).to.equal(firstName);
                 expect(dive.date).to.equal(date);
                 expect(dive.depth).to.equal(depth);
                 expect(dive.duration).to.equal(duration);
@@ -141,15 +137,17 @@ const {
                 const { divesLedger, diver } = await loadFixture(deployDivesLedger);
 
                 const location = "Tahiti";
+                const surname = "Smith";
+                const firstName = "Tom";
                 const date = 1672531199;
                 const depth = 30;
                 const duration = 45;
                 const notes = "Blue Sea";
           
                 // Add a dive and check the emission of the event
-                await expect(divesLedger.connect(diver).addDive(location, date, depth, duration, notes))
+                await expect(divesLedger.connect(diver).addDive(location, surname, firstName, date, depth, duration, notes))
                 .to.emit(divesLedger, "DiveAdded")
-                .withArgs(0, diver.address, location, date, depth, duration, notes);
+                .withArgs(0, diver.address, surname, firstName, location, date, depth, duration, notes);
                 
             });
             it("Should return an empty list if no dives", async function () {
@@ -164,20 +162,19 @@ const {
                 expect(divesLedger.connect(nonInstructor).validateDive(1)).to.be.revertedWith("Only owner can call this function");        
             }); 
             it("Should revert if trying to validate a non-existent dive", async function () {
-                const { divesLedger, owner, instructor } = await loadFixture(deployDivesLedger);
-                // Add instructor as an instructor
-                await divesLedger.connect(owner).addInstructor(instructor.address);
+                const { divesLedger, instructor } = await loadFixture(deployDivesLedger);
+                await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
                 
                await expect(divesLedger.connect(instructor).validateDive(999))
                     .to.be.revertedWith("Dive does not exist.");
             });
             it("Should validate a dive and emit DiveValidated event", async function () {
-                const { divesLedger, diver, instructor, owner } = await loadFixture(deployDivesLedger);
+                const { divesLedger, diver, instructor } = await loadFixture(deployDivesLedger);
                 // Add a dive by the diver
-                await divesLedger.connect(diver).addDive("Tahiti", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
+                await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
 
                 // Add instructor as an instructor
-                await divesLedger.connect(owner).addInstructor(instructor.address);
+                await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
             
                 // Validate the dive by the instructor
                await expect(divesLedger.connect(instructor).validateDive(0))
@@ -192,10 +189,10 @@ const {
                 const { divesLedger, owner, diver, instructor } = await loadFixture(deployDivesLedger);
                 
                 // Add a dive by the diver
-                await divesLedger.connect(diver).addDive("Tahiti", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
+                await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
 
                 // Add instructor as an instructor
-                await divesLedger.connect(owner).addInstructor(instructor.address);
+                await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
             
                 // Validate the dive by the instructor
                 await divesLedger.connect(instructor).validateDive(0);
@@ -207,65 +204,68 @@ const {
         });
         //Certifications management
         describe("Certifications management", function () {
-            it("Only an instructor can add a certification", async function () {
-                const { divesLedger, nonInstructor, diver } = await loadFixture(deployDivesLedger);
-                const certName = "Advanced Diver";
-                const issuingOrganization = "PADI";
-                const issueDate = Math.floor(Date.now() / 1000);
-            
-                // Try to add a certification by a non-instructor and expect it to revert
-                await expect(divesLedger.connect(nonInstructor).addCertification(diver.address, certName, issuingOrganization, issueDate))
-                  .to.be.revertedWith("Only an instructor can perform this action.");
+            it("Should return the correct certification name for level 1", async function () {
+                const { divesLedger } = await loadFixture(deployDivesLedger);                
+                expect(await divesLedger.getCertificationName(1)).to.equal("1. Diver 1 star / Open Water Diver");
             });
-            it("Should add a certification and emit CertificationAdded event", async function () {
-                const { divesLedger, owner, instructor, diver } = await loadFixture(deployDivesLedger);
-                const certName = "Advanced Diver";
+            it("Should return the correct certification name for level 6", async function () {
+                const { divesLedger } = await loadFixture(deployDivesLedger);                
+                expect(await divesLedger.getCertificationName(6)).to.equal("6. Instructor / Dive Leader");
+            });
+            it("Should return 'Unknown Certification' for an invalid level", async function () {
+                const { divesLedger } = await loadFixture(deployDivesLedger);                
+                expect(await divesLedger.getCertificationName(0)).to.equal("Unknown Certification");
+                expect(await divesLedger.getCertificationName(99)).to.equal("Unknown Certification");
+            });
+            it("should return an empty array if no certifications exist for the diver", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);                
+                const certifications = await divesLedger.getCertifications(diver.address);
+                expect(certifications.length).to.equal(0);
+            });
+           it("Should add a certification", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
+                const certLevel = 1;
                 const issuingOrganization = "PADI";
-                const issueDate = Math.floor(Date.now() / 1000);
-
-                // Add instructor as an instructor
-                await divesLedger.connect(owner).addInstructor(instructor.address);
-        
-                // Add a certification by the instructor
-                await expect(divesLedger.connect(instructor).addCertification(diver.address, certName, issuingOrganization, issueDate))
-                .to.emit(divesLedger, "CertificationAdded")
-                .withArgs(diver.address, certName, issuingOrganization, issueDate);
-        
-                // Check if the certification is added correctly
+                const issueDate = Math.floor(Date.now() / 1000); // current timestamp in seconds
+            
+                await expect(
+                    divesLedger.addCertification(diver.address, certLevel, issuingOrganization, issueDate)
+                )
+                  .to.emit(divesLedger, "CertificationAdded")
+                  .withArgs(diver.address, "1. Diver 1 star / Open Water Diver", issuingOrganization, issueDate);
+            
                 const certifications = await divesLedger.getCertifications(diver.address);
                 expect(certifications.length).to.equal(1);
-                expect(certifications[0].certName).to.equal(certName);
+                expect(certifications[0].certLevel).to.equal(certLevel);
+                expect(certifications[0].certName).to.equal("1. Diver 1 star / Open Water Diver");
                 expect(certifications[0].issuingOrganization).to.equal(issuingOrganization);
                 expect(certifications[0].issueDate).to.equal(issueDate);
             });
-            it("Should get the correct certifications for a diver", async function () {
-                const { divesLedger, owner, instructor, diver } = await loadFixture(deployDivesLedger);
-                const certName1 = "Advanced Diver";
-                const issuingOrganization1 = "PADI";
-                const issueDate1 = Math.floor(Date.now() / 1000);
-        
-                const certName2 = "Rescue Diver";
-                const issuingOrganization2 = "NAUI";
-                const issueDate2 = Math.floor(Date.now() / 1000) - 10000;
-
-                // Add instructor as an instructor
-                await divesLedger.connect(owner).addInstructor(instructor.address);
-        
-                // Add certifications by the instructor
-                await divesLedger.connect(instructor).addCertification(diver.address, certName1, issuingOrganization1, issueDate1);
-                await divesLedger.connect(instructor).addCertification(diver.address, certName2, issuingOrganization2, issueDate2);
-        
-                // Check if the certifications are added correctly
+            it("Should return the correct certification name for different levels", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
+                
+                const certLevel1 = 1;
+                const certLevel2 = 2;
+                
+                expect(await divesLedger.getCertificationName(certLevel1)).to.equal("1. Diver 1 star / Open Water Diver");
+                expect(await divesLedger.getCertificationName(certLevel2)).to.equal("2. Diver 2 stars / Advanced Open Water Diver");
+            });
+            it("Should add multiple certifications correctly", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
+            
+                const certData = [
+                    { level: 1, org: "PADI", date: Math.floor(Date.now() / 1000) },
+                    { level: 2, org: "NAUI", date: Math.floor(Date.now() / 1000) }
+                ];
+            
+                for (let cert of certData) {
+                    await divesLedger.addCertification(diver.address, cert.level, cert.org, cert.date);
+                }
+            
                 const certifications = await divesLedger.getCertifications(diver.address);
                 expect(certifications.length).to.equal(2);
-        
-                expect(certifications[0].certName).to.equal(certName1);
-                expect(certifications[0].issuingOrganization).to.equal(issuingOrganization1);
-                expect(certifications[0].issueDate).to.equal(issueDate1);
-        
-                expect(certifications[1].certName).to.equal(certName2);
-                expect(certifications[1].issuingOrganization).to.equal(issuingOrganization2);
-                expect(certifications[1].issueDate).to.equal(issueDate2);
+                expect(certifications[0].certLevel).to.equal(certData[0].level);
+                expect(certifications[1].certLevel).to.equal(certData[1].level);
             });
         });
         describe("Mint management", function () {
@@ -284,7 +284,6 @@ const {
                 const ownerOfToken = await divesLedger.ownerOf(1);
                 expect(ownerOfToken).to.equal(addr1.address);
             });
-          
         });
     });
   });
