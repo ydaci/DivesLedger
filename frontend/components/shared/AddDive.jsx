@@ -15,6 +15,8 @@ const AddDive = ({ getEvents }) => {
     const { address } = useAccount();
 
     const [location, setLocation] = useState('');
+    const [surname, setSurname] = useState('');
+    const [firstName, setFirstname] = useState('');
     const [date, setDate] = useState('');
     const [depth, setDepth] = useState('');
     const [duration, setDuration] = useState('');
@@ -34,7 +36,22 @@ const addDive = async () => {
         description: "Please add a valid location",
         className: 'bg-red-600'
       });
-    } else if (date === "") {
+    }
+     else if (surname === "") {
+        toast({
+          title: "Error",
+          description: "Please add a valid surnames",
+          className: 'bg-red-600'
+        });
+      }
+      else if (firstName === "") {
+          toast({
+            title: "Error",
+            description: "Please add a valid first names",
+            className: 'bg-red-600'
+          });
+        }
+      else if (date === "") {
       toast({
         title: "Error",
         description: "Please add a valid date",
@@ -69,6 +86,8 @@ const addDive = async () => {
           args: [location, new Date(date).getTime() / 1000, parseFloat(depth), parseInt(duration, 10), notes],
         });
         setLocation('');
+        setSurname('');
+        setFirstname('');
         setDate('');
         setDepth('');
         setDuration('');
@@ -96,6 +115,30 @@ const addDive = async () => {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
+                  required
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+            </div>
+            <div>
+              <label>
+                Divers Surnames :
+                <input
+                  type="text"
+                  value={surname}
+                  onChange={(e) => setSurname(e.target.value)}
+                  required
+                  className="border rounded p-2 w-full"
+                />
+              </label>
+            </div>
+            <div>
+              <label>
+                Divers First names :
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstname(e.target.value)}
                   required
                   className="border rounded p-2 w-full"
                 />

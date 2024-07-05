@@ -46,10 +46,10 @@ const Main = () => {
      const refetechEverything = async() => {
          await refetch();
          //Events
-         await getEvents();
+         //await getEvents();
      }
 
-     const getEvents = async() => {
+     /*const getEvents = async() => {
           // On récupère tous les events NumberChanged
           const numberChangedLog = await publicClient.getLogs({
               address: contractAddress,
@@ -66,9 +66,9 @@ const Main = () => {
                   newValue: log.args.newValue.toString()
               })
           ))
-        }
+        } */
 
-        useEffect(() => {
+        /*useEffect(() => {
           if(isSuccess) {
               toast({
                   title: "Congratulations",
@@ -88,17 +88,17 @@ const Main = () => {
                     refetechEverything();
               }
           }
-      }, [isSuccess, errorConfirmation])
+      }, [isSuccess, errorConfirmation]) */
   
       //Lorsque l'on a qqn qui est connecté, on fetch les events
-      useEffect(() => {
+     /* useEffect(() => {
           const getAllEvents = async() => {
               if(address !== 'undefined') {
                   await getEvents();
               }
           }
           getAllEvents()
-      }, [address])
+      }, [address]) */
 
     return (
         <nav>

@@ -13,8 +13,9 @@ contract DivesLedger is ERC721, Ownable {
     struct Dive {
         uint256 id;
         address diver;
-        string diversSurnames;
-        string diversFirstNames;
+        string diverSurname;
+        string diverFirstName;
+        string otherDiverNames; //Divers who accompany the diver
         string location;
         uint256 date; // Unix timestamp
         uint256 depth; // Depth in meters
@@ -43,7 +44,7 @@ contract DivesLedger is ERC721, Ownable {
     *              Events                *
     **************************************/
 
-    event DiveAdded(uint256 id, address indexed diver, string diversSurnames, string diversFirstNames, string location, uint256 date, uint256 depth, uint256 duration, string notes);
+    event DiveAdded(uint256 id, address indexed diver, string diversSurnames, string diversFirstNames, string otherDiverNames, string location, uint256 date, uint256 depth, uint256 duration, string notes);
     event DiveValidated(uint256 id, address indexed instructor);
     event CertificationAdded(address indexed diver, string certName, string issuingOrganization, uint256 issueDate);
 
@@ -69,12 +70,13 @@ contract DivesLedger is ERC721, Ownable {
     *             Functions              *
     **************************************/
     //Pas le owner mais le plongeur décide de qui sera son instructeur. Le programme doit désigner s'il est bien autorisé. 
-    //Instructeur doit avoir au-dessus du niveau 3 peut être instructeur
+    //Faire différenciation entre mainDiver et accompagnants
 
     function addDive(
         string memory _location,
-        string memory _diversSurnames,
-        string memory _diversFirstNames,
+        string memory _diverSurname,
+        string memory _diverFirstName,
+        string memory _otherDiverNames,
         uint256 _date,
         uint256 _depth,
         uint256 _duration,
@@ -83,8 +85,9 @@ contract DivesLedger is ERC721, Ownable {
         dives[nextDiveId] = Dive({
             id: nextDiveId,
             diver: msg.sender,
-            diversSurnames: _diversSurnames,
-            diversFirstNames: _diversFirstNames,
+            diverSurname: _diverSurname,
+            diverFirstName: _diverFirstName,
+            otherDiverNames: _otherDiverNames,
             location: _location,
             date: _date,
             depth: _depth,
@@ -95,7 +98,7 @@ contract DivesLedger is ERC721, Ownable {
 
         diverDives[msg.sender].push(nextDiveId);
 
-        emit DiveAdded(nextDiveId, msg.sender,_diversSurnames, _diversFirstNames, _location, _date, _depth, _duration, _notes);
+        emit DiveAdded(nextDiveId, msg.sender,_diverSurname, _diverFirstName, _otherDiverNames, _location, _date, _depth, _duration, _notes);
 
         nextDiveId++;
     }
@@ -107,7 +110,7 @@ contract DivesLedger is ERC721, Ownable {
 
         dive.validated = true;
 
-        _safeMint(dive.diver, _id); // Recording in blockchain at validation step (not add step)
+        _safeMint(dive.diver, _id); // Recording in blockchain at validation step (not add step). The diver mints the NFT (not the instructor)
 
         emit DiveValidated(_id, msg.sender);
     }

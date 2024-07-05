@@ -65,13 +65,14 @@ const {
                 const location = "Tahiti";
                 const surname = "Smith";
                 const firstName = "Tom";
+                const otherName = "Arnold Schwarzenneger"
                 const date = 1672531199;
                 const depth = 30;
                 const duration = 45;
                 const notes = "Blue Sea";
           
                 // Add a dive
-                await divesLedger.addDive(location, surname, firstName, date, depth, duration, notes);
+                await divesLedger.addDive(location, surname, firstName, otherName, date, depth, duration, notes);
           
                 // Get dives by owner
                 const dives = await divesLedger.getDivesByDiver(owner.address);
@@ -79,8 +80,9 @@ const {
           
                 const dive = dives[0];
                 expect(dive.location).to.equal(location);
-                expect(dive.diversSurnames).to.equal(surname);
-                expect(dive.diversFirstNames).to.equal(firstName);
+                expect(dive.diverSurname).to.equal(surname);
+                expect(dive.diverFirstName).to.equal(firstName);
+                expect(dive.otherDiverNames).to.equal(otherName);
                 expect(dive.date).to.equal(date);
                 expect(dive.depth).to.equal(depth);
                 expect(dive.duration).to.equal(duration);
@@ -91,12 +93,12 @@ const {
                 const { divesLedger, owner } = await loadFixture(deployDivesLedger);
             
                 const diveData = [
-                    { location: "Tahiti", surname: "Smith", firstName: "Tom", date: 1672531199, depth: 30, duration: 45, notes: "Blue Sea" },
-                    { location: "Bali", surname: "Doe", firstName: "Jane", date: 1672531299, depth: 25, duration: 50, notes: "Coral Reef" }
+                    { location: "Tahiti", diverSurname: "Smith", diverFirstName: "Tom", otherDiverNames:"Bruce Willlis", date: 1672531199, depth: 30, duration: 45, notes: "Blue Sea" },
+                    { location: "Bali", diverSurname: "Doe", diverFirstName: "Jane",otherDiverNames:"Jet Li", date: 1672531299, depth: 25, duration: 50, notes: "Coral Reef" }
                 ];
             
                 for (let dive of diveData) {
-                    await divesLedger.addDive(dive.location, dive.surname, dive.firstName, dive.date, dive.depth, dive.duration, dive.notes);
+                    await divesLedger.addDive(dive.location, dive.diverSurname, dive.diverFirstName,dive.otherDiverNames, dive.date, dive.depth, dive.duration, dive.notes);
                 }
             
                 const dives = await divesLedger.getDivesByDiver(owner.address);
@@ -111,13 +113,14 @@ const {
                 const location = "Tahiti";
                 const surname = "Smith";
                 const firstName = "Tom";
+                const otherName = "Jean-Claude Vandamme";
                 const date = 1672531199;
                 const depth = 30;
                 const duration = 45;
                 const notes = "Blue Sea";
               
                 // Add a dive from a different address
-                await divesLedger.connect(addr1).addDive(location, surname, firstName, date, depth, duration, notes);
+                await divesLedger.connect(addr1).addDive(location, surname, firstName, otherName, date, depth, duration, notes);
               
                 // Get dives by addr1
                 const dives = await divesLedger.getDivesByDiver(addr1.address);
@@ -125,8 +128,9 @@ const {
               
                 const dive = dives[0];
                 expect(dive.location).to.equal(location);
-                expect(dive.diversSurnames).to.equal(surname);
-                expect(dive.diversFirstNames).to.equal(firstName);
+                expect(dive.diverSurname).to.equal(surname);
+                expect(dive.diverFirstName).to.equal(firstName);
+                expect(dive.otherDiverNames).to.equal(otherName);
                 expect(dive.date).to.equal(date);
                 expect(dive.depth).to.equal(depth);
                 expect(dive.duration).to.equal(duration);
@@ -139,15 +143,16 @@ const {
                 const location = "Tahiti";
                 const surname = "Smith";
                 const firstName = "Tom";
+                const otherName = "Harrison Ford"
                 const date = 1672531199;
                 const depth = 30;
                 const duration = 45;
                 const notes = "Blue Sea";
           
                 // Add a dive and check the emission of the event
-                await expect(divesLedger.connect(diver).addDive(location, surname, firstName, date, depth, duration, notes))
+                await expect(divesLedger.connect(diver).addDive(location, surname, firstName, otherName, date, depth, duration, notes))
                 .to.emit(divesLedger, "DiveAdded")
-                .withArgs(0, diver.address, surname, firstName, location, date, depth, duration, notes);
+                .withArgs(0, diver.address, surname, firstName, otherName, location, date, depth, duration, notes);
                 
             });
             it("Should return an empty list if no dives", async function () {
@@ -171,7 +176,7 @@ const {
             it("Should validate a dive and emit DiveValidated event", async function () {
                 const { divesLedger, diver, instructor } = await loadFixture(deployDivesLedger);
                 // Add a dive by the diver
-                await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
+                await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", "Jo-Wilfried Tsonga", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
 
                 // Add instructor as an instructor
                 await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
@@ -189,7 +194,7 @@ const {
                 const { divesLedger, owner, diver, instructor } = await loadFixture(deployDivesLedger);
                 
                 // Add a dive by the diver
-                await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
+                await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", "Richard Gasquet", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
 
                 // Add instructor as an instructor
                 await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
