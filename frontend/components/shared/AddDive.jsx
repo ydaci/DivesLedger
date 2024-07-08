@@ -23,6 +23,7 @@ const AddDive = () => {
     const [duration, setDuration] = useState('');
     const [notes, setNotes] = useState('');
     const [events, setEvents] = useState([]);
+    const today = new Date().toISOString().split('T')[0];
 
     const { data: hash, isPending, error, writeContract } = useWriteContract();
 
@@ -235,6 +236,7 @@ const addDive = async () => {
                   onChange={(e) => setDate(e.target.value)}
                   required
                   className="border rounded p-2 w-full"
+                  max={today}
                 />
               </label>
             </div>

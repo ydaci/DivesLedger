@@ -9,7 +9,7 @@ import {
 const Footer = ({children}) => {
     return ( 
     <footer className="footer text-2xl font-bold text-gray-800 dark:text-white">
-        Tous droits réservés &copy; <Accordion type="single" collapsible>
+        All reserved rights &copy; <Accordion type="single" collapsible>
     <AccordionItem value="item-1">
          <AccordionTrigger>DivesLedger Team : </AccordionTrigger>
             <AccordionContent>

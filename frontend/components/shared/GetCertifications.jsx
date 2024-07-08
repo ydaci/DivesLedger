@@ -9,14 +9,14 @@ import { RocketIcon } from "@radix-ui/react-icons";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-const GetDives = ({ getEvents }) => {
+const GetCertifications = ({ getEvents }) => {
     const { address } = useAccount();
     const [addressDiver, setAddressDiver] = useState('');
-    const [dives, setDives] = useState(null);
+    const [certifications, setCertifications] = useState(null);
 
     const { data: hash, isPending, error, writeContract } = useWriteContract();
 
-      const getDives = async () => {
+      const getCertifications = async () => {
         if (addressDiver === "") {
           toast({
             title: "Error",
@@ -36,7 +36,7 @@ const GetDives = ({ getEvents }) => {
             await writeContract({
               address: contractAddress,
               abi: contractAbi,
-              functionName: 'getDivesByDiver',
+              functionName: 'getCertifications',
               args: [addressDiver]
             });
             setAddressDiver('');
@@ -46,34 +46,27 @@ const GetDives = ({ getEvents }) => {
         }
       };
 
-      const { data: diverLog, error: getError, isPending: getIsPending, refetch } = 
+      const { data: certificationDiver, error: getError, isPending: getIsPending, refetch } = 
       useReadContract({
           address : contractAddress,
           abi: contractAbi,
-          functionName: 'getDivesByDiver',
+          functionName: 'getCertifications',
           args: [addressDiver]
       })
 
       useEffect(() => {
-        if (diverLog) {
+        if (certificationDiver) {
               // Convertir les BigInt en chaînes de caractères
-            const formattedDiverLog = diverLog.map(dive => ({
-                  ...dive,
-                id: dive.id.toString(),
-                diver:dive.diver.toString(),
-                diverSurname:dive.id.toString(),
-                diverFirstName:dive.diverFirstName.toString(),
-                otherDiverNames:dive.otherDiverNames.toString(),
-                location:dive.location.toString(),
-                date:dive.date  ? new Date(Number(dive.date) * 1000).toLocaleDateString('en-GB') : null,
-                depth: dive.depth.toString(),
-                duration: dive.duration.toString(),
-                notes: dive.notes.toString(),
-                validated: dive.validated.toString()
-            }));
-          setDives(formattedDiverLog);
+            const formattedCertificationDiver = certificationDiver.map(certification => ({
+                  ...certification,
+                certLevel: certification.certLevel.toString(),
+                certName:certification.certName.toString(),
+                issuingOrganization:certification.issuingOrganization.toString(),
+                issueDate:certification.issueDate ? new Date(Number(certification.issueDate) * 1000).toLocaleDateString('en-GB') : null
+             }));
+            setCertifications(formattedCertificationDiver);
         }
-      }, [diverLog]);
+      }, [certificationDiver]);
 
       const { toast } = useToast();
 
@@ -90,7 +83,7 @@ const GetDives = ({ getEvents }) => {
         if(isSuccess) {
             toast({
                 title: "Congratulations",
-                description: "The dive has been identified",
+                description: "The certification has been identified",
                 className: "bg-line-200"
               })
               refetchPage();
@@ -124,29 +117,23 @@ const GetDives = ({ getEvents }) => {
                 />
               </label>
             </div>
-            <Button onClick={getDives} className="bg-blue-500 text-white rounded p-2">
-              Get Dive Log
+            <Button onClick={getCertifications} className="bg-blue-500 text-white rounded p-2">
+              Get Diver certifications
             </Button>
         </form>
-        {isSuccess && dives && (
+        {isSuccess && certifications && (
         <Alert>
           <RocketIcon className="h-4 w-4" />
           <AlertTitle>Information</AlertTitle>
           <AlertDescription>
-            Dives got.
+            Certifications got.
             <ul>
-        {dives.map((dive, index) => (
+        {certifications.map((certification, index) => (
           <li key={index}>
-                  {dive.diver && <p>Diver: {dive.diver}</p>}
-                  {dive.diverSurname && <p>Diver Surname: {dive.diverSurname}</p>}
-                  {dive.diverFirstName && <p>Diver First Name: {dive.diverFirstName}</p>}
-                  {dive.otherDiverNames && <p>Accompany divers names: {dive.otherDiverNames}</p>}
-                  {dive.location && <p>Location: {dive.location}</p>}
-                  {dive.date && <p>Date: {dive.date}</p>}
-                  {dive.depth && <p>Depth: {dive.depth}</p>}
-                  {dive.duration && <p>Duration: {dive.duration}</p>}
-                  {dive.notes && <p>Notes: {dive.notes}</p>}
-                  {dive.validated && <p>Validated: {dive.validated}</p>}
+                  {certification.certLevel && <p>Diver level : {certification.certLevel}</p>}
+                  {certification.certName && <p>Diver Certification : {certification.certName}</p>}
+                  {certification.issuingOrganization && <p>Certification Issuing organization: {certification.issuingOrganization}</p>}
+                  {certification.issueDate && <p>Certification issue Date : {certification.issueDate}</p>}
           </li>
         ))}
       </ul>
@@ -186,4 +173,4 @@ const GetDives = ({ getEvents }) => {
     )
 }
 
-export default GetDives;
+export default GetCertifications;

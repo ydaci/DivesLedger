@@ -24,6 +24,7 @@ import AddDive from "@/components/shared/AddDive";
 import AddCertification from "@/components/shared/AddCertification";
 import ValidateDive from "./ValidateDive";
 import GetDives from "@/components/shared/GetDives";
+import GetCertifications  from "@/components/shared/GetCertifications";
 
 const Main = () => {
 
@@ -104,13 +105,13 @@ const Main = () => {
             <div>
                  <h3 className="mb-4 text-4xl">Certifications</h3>
                  <AddCertification />
+                 <GetCertifications />
             </div>
             <br/>
             <div>
                  <h3 className="mb-4 text-4xl">Dives</h3>
                  <AddDive />
                  <ValidateDive />
-                 <p> The number in the Blockchain : </p>
                  <GetDives />
             </div>
             <br/>
