@@ -2,23 +2,22 @@
 import { useState, useEffect } from "react";
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSendTransaction } from "wagmi";
 import { contractAddress, contractAbi } from "@/constants";
-import Informations from "./Information";
 
 // UI
 import { useToast } from "../ui/use-toast";
+import { RocketIcon } from "@radix-ui/react-icons";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+
+import Event from "@/components/shared/Event";
+
 const ValidateDive = ({ getEvents }) => {
     const { address } = useAccount();
 
     const [idDive, setIdDive] = useState('');
 
-    const { data: hash, isPending, error, writeC } = useWriteContract();
-    const { isLoading: isConfirming, isSuccess: isConfirmed, refetch } =
-      useWaitForTransactionReceipt({
-        hash,
-      })
+    const { data: hash, isPending, error, writeContract } = useWriteContract();
 
 
 const validateDive = async () => {
@@ -46,6 +45,32 @@ const validateDive = async () => {
 
     const { toast } = useToast();
 
+    const { isLoading: isConfirming, isSuccess, error: errorConfirmation } =
+    useWaitForTransactionReceipt({
+        hash
+    })
+
+    useEffect(() => {
+      if(isSuccess) {
+          toast({
+              title: "Congratulations",
+              description: "The dive has been validated",
+              className: "bg-line-200"
+            })
+            //refetechEverything();
+      }
+      if(errorConfirmation) {
+              toast({
+                  title: errorConfirmation.message,
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                })
+                //refetechEverything();
+      }
+  }, [isSuccess, errorConfirmation])
+
+
     return (
         <div>
           <nav>
@@ -57,7 +82,7 @@ const validateDive = async () => {
             <div>
               <label>
                 Dive id :
-                <input
+                <Input
                   type="text"
                   value={idDive}
                   onChange={(e) => setIdDive(e.target.value)}
@@ -69,8 +94,37 @@ const validateDive = async () => {
             <Button onClick={validateDive} className="bg-blue-500 text-white rounded p-2">
               Validate Dive
             </Button>
+            {isSuccess &&
+                    <Alert>
+                        <RocketIcon className="h-4 w-4" />
+                        <AlertTitle>Information</AlertTitle>
+                        <AlertDescription>
+                            Dive validated.
+                        </AlertDescription>
+                        <AlertDescription>
+                          Transaction Hash: {hash}
+                        </AlertDescription>
+                    </Alert>
+                }
+                {errorConfirmation && (
+                    <Alert>
+                        <RocketIcon className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            {(errorConfirmation?.shortMessage) || errorConfirmation.message}
+                        </AlertDescription>
+                    </Alert>
+                )}
+                {error && (
+                    <Alert className="mb-4 bg-red-400">
+                        <RocketIcon className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            {(error?.shortMessage) || error.message}
+                        </AlertDescription>
+                    </Alert>
+                )}
           </form>
-          <Informations hash={hash} isConfirming={isConfirming} isConfirmed={isConfirmed} error={error} />
         </div>
       );
 };

@@ -161,6 +161,10 @@ contract DivesLedger is ERC721, Ownable {
         return diverCertifications[_diver];
     }
 
+    function getCurrentDiveId()  public view returns (uint) {
+        return nextDiveId;
+    }
+
     function getDive(uint256 _id) public view returns (Dive memory) {
         require(_id >= 0 && _id <= nextDiveId, "Dive does not exist.");
         return dives[_id];

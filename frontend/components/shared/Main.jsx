@@ -24,7 +24,6 @@ import AddDive from "@/components/shared/AddDive";
 import AddCertification from "@/components/shared/AddCertification";
 import ValidateDive from "./ValidateDive";
 import GetDives from "@/components/shared/GetDives";
-import Events from "@/components/shared/Events";
 
 const Main = () => {
 
@@ -46,10 +45,10 @@ const Main = () => {
      const refetechEverything = async() => {
          await refetch();
          //Events
-         //await getEvents();
+         await getEvents();
      }
 
-     /*const getEvents = async() => {
+     const getEvents = async() => {
           // On récupère tous les events NumberChanged
           const numberChangedLog = await publicClient.getLogs({
               address: contractAddress,
@@ -66,9 +65,9 @@ const Main = () => {
                   newValue: log.args.newValue.toString()
               })
           ))
-        } */
+        } 
 
-        /*useEffect(() => {
+        useEffect(() => {
           if(isSuccess) {
               toast({
                   title: "Congratulations",
@@ -88,31 +87,31 @@ const Main = () => {
                     refetechEverything();
               }
           }
-      }, [isSuccess, errorConfirmation]) */
+      }, [isSuccess, errorConfirmation]) 
   
       //Lorsque l'on a qqn qui est connecté, on fetch les events
-     /* useEffect(() => {
+      useEffect(() => {
           const getAllEvents = async() => {
               if(address !== 'undefined') {
                   await getEvents();
               }
           }
           getAllEvents()
-      }, [address]) */
+      }, [address])
 
     return (
         <nav>
+            <div>
+                 <h3 className="mb-4 text-4xl">Certifications</h3>
+                 <AddCertification />
+            </div>
+            <br/>
             <div>
                  <h3 className="mb-4 text-4xl">Dives</h3>
                  <AddDive />
                  <ValidateDive />
                  <p> The number in the Blockchain : </p>
                  <GetDives />
-            </div>
-            <br/>
-            <div>
-                 <h3 className="mb-4 text-4xl">Certifications</h3>
-                 <AddCertification />
             </div>
             <br/>
         </nav>

@@ -12,7 +12,7 @@ const NotConnected = ({children}) => {
         <RocketIcon className="h-4 w-4" />
         <AlertTitle>Warning</AlertTitle>
         <AlertDescription>
-          Connectez votre portefeuille pour accéder à DivesLedger
+          Connect your wallet to access to DivesLedger
         </AlertDescription>
       </Alert>    
     )

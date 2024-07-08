@@ -241,6 +241,12 @@ export const contractAbi = [
 			{
 				"indexed": false,
 				"internalType": "string",
+				"name": "otherDiverNames",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
 				"name": "location",
 				"type": "string"
 			},
@@ -372,12 +378,17 @@ export const contractAbi = [
 			},
 			{
 				"internalType": "string",
-				"name": "_diversSurnames",
+				"name": "_diverSurname",
 				"type": "string"
 			},
 			{
 				"internalType": "string",
-				"name": "_diversFirstNames",
+				"name": "_diverFirstName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_otherDiverNames",
 				"type": "string"
 			},
 			{
@@ -528,12 +539,17 @@ export const contractAbi = [
 			},
 			{
 				"internalType": "string",
-				"name": "diversSurnames",
+				"name": "diverSurname",
 				"type": "string"
 			},
 			{
 				"internalType": "string",
-				"name": "diversFirstNames",
+				"name": "diverFirstName",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "otherDiverNames",
 				"type": "string"
 			},
 			{
@@ -650,6 +666,19 @@ export const contractAbi = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "getCurrentDiveId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -673,12 +702,17 @@ export const contractAbi = [
 					},
 					{
 						"internalType": "string",
-						"name": "diversSurnames",
+						"name": "diverSurname",
 						"type": "string"
 					},
 					{
 						"internalType": "string",
-						"name": "diversFirstNames",
+						"name": "diverFirstName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "otherDiverNames",
 						"type": "string"
 					},
 					{
@@ -744,12 +778,17 @@ export const contractAbi = [
 					},
 					{
 						"internalType": "string",
-						"name": "diversSurnames",
+						"name": "diverSurname",
 						"type": "string"
 					},
 					{
 						"internalType": "string",
-						"name": "diversFirstNames",
+						"name": "diverFirstName",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "otherDiverNames",
 						"type": "string"
 					},
 					{

@@ -2,26 +2,38 @@
 import { useState, useEffect } from "react";
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSendTransaction } from "wagmi";
 import { contractAddress, contractAbi } from "@/constants";
-import Informations from "./Information";
-
+import { parseAbiItem } from "viem";
+import { publicClient } from "@/utils/client";
 // UI
 import { useToast } from "../ui/use-toast";
+import { RocketIcon } from "@radix-ui/react-icons"
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-const AddCertification = ({ getEvents }) => {
+const AddCertification = () => {
     const { address } = useAccount();
 
     const [diver, setDiver] = useState('');
-    const [certName, setCertName] = useState('');
+    const [certLevel, setCertLevel] = useState('');
     const [issuingOrganization, setIssuingOrganization] = useState('');
     const [issueDate, setIssueDate] = useState('');
+    //Display the values in the page
+    const [addedCertLevel, setAddedCertLevel] = useState("");
+    const [addedDiver, setAddedDiver] = useState("");
+    const today = new Date().toISOString().split('T')[0];
 
-    const { data: hash, isPending, error, writeC } = useWriteContract();
-    const { isLoading: isConfirming, isSuccess: isConfirmed, refetch } =
-      useWaitForTransactionReceipt({
-        hash,
-      })
+    const [events, setEvents] = useState([]);
+
+    const { data: certName, error: getError, isPending: getIsPending, refetch } = 
+    useReadContract({
+        address : contractAddress,
+        abi: contractAbi,
+        functionName: 'getCertificationName',
+        account: address,
+        args: [addedCertLevel]
+    })
+
+    const { data: hash, isPending, error, writeContract } = useWriteContract();
 
 
 const addCertification = async () => {
@@ -38,10 +50,10 @@ const addCertification = async () => {
           description: "Address driver should have 42 characters",
           className: 'bg-red-600'
         });
-    } else if (certName === "") {
+    } else if (certLevel === "") {
       toast({
         title: "Error",
-        description: "Please add a valid certName",
+        description: "Please add a valid level",
         className: 'bg-red-600'
       });
     } else if (issuingOrganization === "") {
@@ -50,30 +62,33 @@ const addCertification = async () => {
           description: "Please add a valid issuing Organization",
           className: 'bg-red-600'
         });
-    } else if (duration === "") {
-        toast({
-          title: "Error",
-          description: "Please add a valid duration",
-          className: 'bg-red-600'
-        });
-    } 
+    }
     else if (issueDate === "") {
         toast({
           title: "Error",
           description: "Please add valid issue Date",
           className: 'bg-red-600'
         });
-    } 
+    }
+    else if (issueDate > new Date()) {
+      toast({
+        title: "Error",
+        description: "Please add valid issue Date",
+        className: 'bg-red-600'
+      });
+  }  
      else {
       try {
         await writeContract({
           address: contractAddress,
           abi: contractAbi,
           functionName: 'addCertification',
-          args: [diver, certName, issuingOrganization, new Date(issueDate).getTime() / 1000],
+          args: [diver, certLevel, issuingOrganization, new Date(issueDate).getTime() / 1000],
         });
+        setAddedCertLevel(certLevel);
+        setAddedDiver(diver);
         setDiver('');
-        setCertName('');
+        setCertLevel('');
         setIssuingOrganization('');
         setIssueDate('');
       } catch (error) {
@@ -83,6 +98,68 @@ const addCertification = async () => {
   };
 
     const { toast } = useToast();
+
+    const { isLoading: isConfirming, isSuccess, error: errorConfirmation } =
+    useWaitForTransactionReceipt({
+        hash
+    })
+
+    const refetchPage = async() => {
+      await refetch();
+      //Events
+      await getEvents();
+    }
+
+    const getEvents = async() => {
+      // On récupère tous les events NumberChanged
+      const certificationAddedLog = await publicClient.getLogs({
+          address: contractAddress,
+          event: parseAbiItem('event CertificationAdded(address indexed diver, string certName, string issuingOrganization, uint256 issueDate)'),
+          // du premier bloc (celui où j'ai déploye le smartContract)
+          fromBlock: 0n,
+          // jusqu'au dernier
+          toBlock: 'latest' // Pas besoin valeur par défaut
+      })
+      // Et on met ces events dans le state "events" en formant un objet cohérent pour chaque event
+      setEvents(certificationAddedLog.map(
+          log => ({
+              diver: log.args.diver.toString(),
+              certName: log.args.certName.toString(),
+              issuingOrganization: log.args.issuingOrganization.toString(),
+              issueDate: log.args.issueDate.toString()
+          })
+      ))
+    }
+
+    useEffect(() => {
+      if(isSuccess) {
+          toast({
+              title: "Congratulations",
+              description: "The certification has been added",
+              className: "bg-line-200"
+            })
+            refetchPage();
+      }
+      if(errorConfirmation) {
+              toast({
+                  title: errorConfirmation.message,
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                })
+                refetchPage();
+          }
+  }, [isSuccess, errorConfirmation])
+
+      //LFetch the events
+      useEffect(() => {
+        const getAllEvents = async() => {
+            if(address !== 'undefined') {
+                await getEvents();
+            }
+        }
+        getAllEvents()
+    }, [address])
 
     return (
         <div>
@@ -94,8 +171,8 @@ const addCertification = async () => {
           <form className="space-y-4">
             <div>
               <label>
-                Diver adress :
-                <input
+                Diver address :
+                <Input
                   type="text"
                   value={diver}
                   onChange={(e) => setDiver(e.target.value)}
@@ -106,20 +183,29 @@ const addCertification = async () => {
             </div>
             <div>
               <label>
-                Certification :
-                <input
-                  type="datetext"
-                  value={certName}
-                  onChange={(e) => certName(e.target.value)}
-                  required
-                  className="border rounded p-2 w-full"
-                />
+                Certification Level :
+                <select
+                  id="certification"
+                  name="certification"
+                  value={certLevel}
+                  onChange={(e) => setCertLevel(e.target.value)}
+                >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+              </select>
               </label>
             </div>
             <div>
               <label>
                 Issuing organization :
-                <input
+                <Input
                   type="text"
                   value={issuingOrganization}
                   onChange={(e) => setIssuingOrganization(e.target.value)}
@@ -131,20 +217,52 @@ const addCertification = async () => {
             <div>
               <label>
                 Issuing date :
-                <input
+                <Input
                   type="date"
                   value={issueDate}
                   onChange={(e) => setIssueDate(e.target.value)}
                   required
                   className="border rounded p-2 w-full"
+                  max={today} 
                 />
               </label>
             </div>
             <Button onClick={addCertification} className="bg-blue-500 text-white rounded p-2">
               Add Certification
             </Button>
+            {isSuccess && 
+                <Alert>
+                    <RocketIcon className="h-4 w-4" />
+                    <AlertTitle>Information</AlertTitle>
+                    <AlertDescription>
+                        Certification added. {addedDiver} got a new certification : {addedCertLevel} - {certName}
+                    </AlertDescription>
+                    <br/>
+                    <AlertTitle>Transaction</AlertTitle>
+                    <AlertDescription>
+                        Transaction Hash: {hash}
+                    </AlertDescription>
+                </Alert>
+                }
+                {errorConfirmation && (
+                <Alert>
+                    <RocketIcon className = "mb-4 bg-red-400" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                      {(errorConfirmation?.shortMessage) || errorConfirmation.message}
+                    </AlertDescription>
+                </Alert>
+                )}
+                {error && (
+                <Alert className = "mb-4 bg-red-400">
+                    <RocketIcon className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                      {(errorConfirmation?.shortMessage) || errorConfirmation.message}
+                    </AlertDescription>
+                </Alert>
+                )}
           </form>
-          <Informations hash={hash} isConfirming={isConfirming} isConfirmed={isConfirmed} error={error} />
         </div>
       );
 };

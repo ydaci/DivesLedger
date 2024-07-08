@@ -5,21 +5,22 @@ import GeneralConditions from "@/components/shared/GeneralConditions";
 
 const Header = () => {
   const [isTermsChecked, setIsTermsChecked] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleCheckboxChange = (event) => {
     setIsTermsChecked(event.target.checked);
-    setShowError(false); // Réinitialiser le message d'erreur lorsque la case est cochée/décochée
+    setShowError(false); 
   };
 
   const handleConnectButtonClick = () => {
     if (!isTermsChecked) {
       setShowError(true);
-      setErrorMessage("Veuillez accepter les conditions générales !");
+      setErrorMessage("You must accept the general conditions !");
     } else {
-      setErrorMessage("Connexion réussie !");
-      // Autre logique de connexion ici si nécessaire
+      setIsConnected(true);
+      setErrorMessage("Connection ok !");
     }
   };
 
@@ -29,6 +30,7 @@ const Header = () => {
         <p className="text-2xl font-bold text-gray-800 dark:text-white">DivesLedger</p>
       </div>
       <div>
+      {!isConnected && (
         <label>
           <input
             type="checkbox"
@@ -37,13 +39,16 @@ const Header = () => {
           />
          <GeneralConditions />
         </label>
+      )}
         
         {showError && (
           <p style={{ color: 'red' }}>{errorMessage}</p>
         )}
         <div>
+        {isTermsChecked && (
           <ConnectButton label="Connect to DivesLedger" disabled={!isTermsChecked}
             onClick={handleConnectButtonClick} />
+        )}
         </div>
       </div>
     </>
