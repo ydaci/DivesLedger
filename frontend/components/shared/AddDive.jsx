@@ -113,8 +113,7 @@ const addDive = async () => {
     }
 
     const getEvents = async() => {
-      // On récupère tous les events NumberChanged
-      const numberChangedLog = await publicClient.getLogs({
+      const diveAddedLog = await publicClient.getLogs({
           address: contractAddress,
           event: parseAbiItem('event DiveAdded(uint256 id, address indexed diver, string diversSurnames, string diversFirstNames, string otherDiverNames, string location, uint256 date, uint256 depth, uint256 duration, string notes)'),
           // du premier bloc (celui où j'ai déploye le smartContract)
@@ -123,7 +122,7 @@ const addDive = async () => {
           toBlock: 'latest' // Pas besoin valeur par défaut
       })
       // Et on met ces events dans le state "events" en formant un objet cohérent pour chaque event
-      setEvents(numberChangedLog.map(
+      setEvents(diveAddedLog.map(
           log => ({
               id: log.args.id.toString(),
               diver: log.args.diver.toString(),

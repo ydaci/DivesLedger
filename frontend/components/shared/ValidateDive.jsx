@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSendTransaction } from "wagmi";
 import { contractAddress, contractAbi } from "@/constants";
+import { parseAbiItem } from "viem";
+import { publicClient } from "@/utils/client";
 
 // UI
 import { useToast } from "../ui/use-toast";
@@ -10,12 +12,15 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
-const ValidateDive = ({ getEvents }) => {
+const ValidateDive = () => {
     const { address } = useAccount();
+    const [diver, setDiver] = useState('');
 
     const [idDive, setIdDive] = useState('');
 
     const { data: hash, error, isPending: setIsPending, writeContract  } = useWriteContract();
+
+    const [events, setEvents] = useState([]);
 
 
 const validateDive = async () => {
@@ -43,10 +48,32 @@ const validateDive = async () => {
 
     const { toast } = useToast();
 
-    const { isLoading: isConfirming, isSuccess, error: errorConfirmation } =
+    const { isLoading: isConfirming, isSuccess, error: errorConfirmation, refetch  } =
     useWaitForTransactionReceipt({
         hash
     })
+
+    const getEvents = async() => {
+      const diveValidatedLog = await publicClient.getLogs({
+          address: contractAddress,
+          event: parseAbiItem('event DiveValidated(uint256 id, address indexed instructor)'),
+          fromBlock: 0n,
+          toBlock: 'latest'
+      })
+      // Et on met ces events dans le state "events" en formant un objet cohérent pour chaque event
+      setEvents(diveValidatedLog.map(
+          log => ({
+              id: log.args.id.toString(),
+              diver: address.toString()
+          })
+      ))
+    }
+
+    const refetchPage = async() => {
+      await refetch();
+      //Events
+      await getEvents();
+    }
 
     useEffect(() => {
       if(isSuccess) {
@@ -55,7 +82,7 @@ const validateDive = async () => {
               description: "The dive has been validated",
               className: "bg-line-200"
             })
-            //refetechEverything();
+            refetchPage();
       }
       if(errorConfirmation) {
               toast({
@@ -64,7 +91,7 @@ const validateDive = async () => {
                   duration: 3000,
                   isClosable: true,
                 })
-                //refetechEverything();
+                refetchPage();
       }
   }, [isSuccess, errorConfirmation])
 

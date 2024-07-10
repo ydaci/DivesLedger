@@ -159,7 +159,7 @@ const GetDives = ({ getEvents }) => {
               {dives.map((dive, index) => (
                 <li key={index}>
                       {dive.id && <p>Dive id : {dive.id}</p>}
-                      {dive.diver && <p>Diver: {dive.diver}</p>}
+                      {dive.diver && <p>Diver address: {dive.diver}</p>}
                       {dive.diverSurname && <p>Diver Surname: {dive.diverSurname}</p>}
                       {dive.diverFirstName && <p>Diver First Name: {dive.diverFirstName}</p>}
                       {dive.otherDiverNames && <p>Accompany divers names: {dive.otherDiverNames}</p>}

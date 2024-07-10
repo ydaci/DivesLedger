@@ -44,20 +44,7 @@ const AddCertification = () => {
 
 
 const addCertification = async () => {
-    if (diver === "") {
-      toast({
-        title: "Error",
-        description: "Please add a valid address diver",
-        className: 'bg-red-600'
-      });
-    }
-    else if (diver.length !== 42) {
-        toast({
-          title: "Error",
-          description: "Address driver should have 42 characters",
-          className: 'bg-red-600'
-        });
-    } else if (certLevel === "") {
+  if (certLevel === "") {
       toast({
         title: "Error",
         description: "Please add a valid level",
@@ -90,7 +77,7 @@ const addCertification = async () => {
           address: contractAddress,
           abi: contractAbi,
           functionName: 'addCertification',
-          args: [diver, certLevel, issuingOrganization, new Date(issueDate).getTime() / 1000],
+          args: [certLevel, issuingOrganization, new Date(issueDate).getTime() / 1000],
         });
         setAddedCertLevel(certLevel);
         setAddedDiver(diver);
@@ -118,14 +105,11 @@ const addCertification = async () => {
     }
 
     const getEvents = async() => {
-      // On récupère tous les events NumberChanged
       const certificationAddedLog = await publicClient.getLogs({
           address: contractAddress,
           event: parseAbiItem('event CertificationAdded(address indexed diver, string certName, string issuingOrganization, uint256 issueDate)'),
-          // du premier bloc (celui où j'ai déploye le smartContract)
           fromBlock: 0n,
-          // jusqu'au dernier
-          toBlock: 'latest' // Pas besoin valeur par défaut
+          toBlock: 'latest'
       })
       // Et on met ces events dans le state "events" en formant un objet cohérent pour chaque event
       setEvents(certificationAddedLog.map(
@@ -145,7 +129,7 @@ const addCertification = async () => {
               description: "The certification has been added",
               className: "bg-line-200"
             })
-            //refetchPage();
+            refetchPage();
       }
       if(errorConfirmation) {
               toast({
@@ -154,7 +138,7 @@ const addCertification = async () => {
                   duration: 3000,
                   isClosable: true,
                 })
-                //refetchPage();
+                refetchPage();
           }
   }, [isSuccess, errorConfirmation])
 
@@ -176,18 +160,6 @@ const addCertification = async () => {
             </div>
           </nav>
           <form className="space-y-4">
-            <div>
-              <label>
-                Diver address * :
-                <Input
-                  type="text"
-                  value={diver}
-                  onChange={(e) => setDiver(e.target.value)}
-                  required
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-            </div>
             <div>
               <label> Certification Level * : 
             <select

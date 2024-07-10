@@ -21,38 +21,32 @@ const {
         //Instructors section
         describe("Instructors management", function () {
             it("Should return false if a diver has no certification", async function () {
-                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
-                const isInstructor = await divesLedger.isInstructor(diver.address);
+                const { divesLedger, owner } = await loadFixture(deployDivesLedger);
+                const isInstructor = await divesLedger.isInstructor(owner.address);
                 expect(isInstructor).to.equal(false);       
             });
             it("Should return false if a diver has certifications below level 6", async function () {
-                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
-                await divesLedger.addCertification(diver.address, 1 , "Organization", 1720104021);
-                await divesLedger.addCertification(diver.address, 2 , "Organization", 1720104021);
-                const isInstructor = await divesLedger.isInstructor(diver.address);
+                const { divesLedger, owner } = await loadFixture(deployDivesLedger);
+                await divesLedger.addCertification(1 , "Organization", 1720104021);
+                await divesLedger.addCertification(2 , "Organization", 1720104021);
+                const isInstructor = await divesLedger.isInstructor(owner.address);
                 expect(isInstructor).to.equal(false);          
             });
             it("Should return true if a diver has at least a certification level above level 6", async function () {
-                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
-                await divesLedger.addCertification(diver.address, 6 , "Organization", 1720104021);
-                await divesLedger.addCertification(diver.address, 7 , "Organization", 1720104021);
-                const isInstructor = await divesLedger.isInstructor(diver.address);
+                const { divesLedger, owner } = await loadFixture(deployDivesLedger);
+                await divesLedger.addCertification(6, "Organization", 1720104021);
+                await divesLedger.addCertification(7, "Organization", 1720104021);
+                
+                const isInstructor = await divesLedger.isInstructor(owner.address);
                 expect(isInstructor).to.equal(true);          
             });
             it("Should return true if a diver has a certification level above level 6 and another below 6", async function () {
-                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
-                await divesLedger.addCertification(diver.address, 3 , "Organization", 1720104021);
-                await divesLedger.addCertification(diver.address, 7 , "Organization", 1720104021);
-                const isInstructor = await divesLedger.isInstructor(diver.address);
+                const { divesLedger, owner } = await loadFixture(deployDivesLedger);
+                await divesLedger.addCertification(3, "Organization", 1720104021);
+                await divesLedger.addCertification(7, "Organization", 1720104021);
+                
+                const isInstructor = await divesLedger.isInstructor(owner.address);
                 expect(isInstructor).to.equal(true);          
-            });
-            it("Should handle multiple instructors correctly", async function () {
-                const { divesLedger, diver, instructor, addr1 } = await loadFixture(deployDivesLedger);
-                await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
-                await divesLedger.addCertification(addr1.address, 7 , "Organization", 1720104021);
-            
-                expect(await divesLedger.isInstructor(instructor.address)).to.equal(true);
-                expect(await divesLedger.isInstructor(addr1.address)).to.equal(true);
             });
         });
 
@@ -167,10 +161,10 @@ const {
                 expect(divesLedger.connect(nonInstructor).validateDive(1)).to.be.revertedWith("Only owner can call this function");        
             }); 
             it("Should revert if trying to validate a non-existent dive", async function () {
-                const { divesLedger, instructor } = await loadFixture(deployDivesLedger);
-                await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
+                const { divesLedger, owner } = await loadFixture(deployDivesLedger);
+                await divesLedger.addCertification(6 , "Organization", 1720104021);
                 
-               await expect(divesLedger.connect(instructor).validateDive(999))
+               await expect(divesLedger.connect(owner).validateDive(999))
                     .to.be.revertedWith("Dive does not exist.");
             });
             it("Should validate a dive and emit DiveValidated event", async function () {
@@ -179,7 +173,7 @@ const {
                 await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", "Jo-Wilfried Tsonga", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
 
                 // Add instructor as an instructor
-                await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
+                await divesLedger.connect(instructor).addCertification(6 , "Organization", 1720104021);
             
                 // Validate the dive by the instructor
                await expect(divesLedger.connect(instructor).validateDive(0))
@@ -197,7 +191,7 @@ const {
                 await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", "Richard Gasquet", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
 
                 // Add instructor as an instructor
-                await divesLedger.addCertification(instructor.address, 6 , "Organization", 1720104021);
+                await divesLedger.connect(instructor).addCertification(6 , "Organization", 1720104021);
             
                 // Validate the dive by the instructor
                 await divesLedger.connect(instructor).validateDive(0);
@@ -246,7 +240,7 @@ const {
                 const issueDate = Math.floor(Date.now() / 1000); // current timestamp in seconds
             
                 await expect(
-                    divesLedger.addCertification(diver.address, certLevel, issuingOrganization, issueDate)
+                    divesLedger.connect(diver).addCertification(certLevel, issuingOrganization, issueDate)
                 )
                   .to.emit(divesLedger, "CertificationAdded")
                   .withArgs(diver.address, "1. Diver 1 star / Open Water Diver", issuingOrganization, issueDate);
@@ -276,7 +270,7 @@ const {
                 ];
             
                 for (let cert of certData) {
-                    await divesLedger.addCertification(diver.address, cert.level, cert.org, cert.date);
+                    await divesLedger.connect(diver).addCertification(cert.level, cert.org, cert.date);
                 }
             
                 const certifications = await divesLedger.getCertifications(diver.address);
@@ -290,11 +284,11 @@ const {
                 const issuingOrganization = "PADI";
                 const issueDate = Math.floor(Date.now() / 1000); // current timestamp in seconds
         
-                await divesLedger.addCertification(diver.address, certLevel, issuingOrganization, issueDate);
+                await divesLedger.connect(diver).addCertification(certLevel, issuingOrganization, issueDate);
         
                 // Attempt to add the same certification again
                 await expect(
-                    divesLedger.addCertification(diver.address, certLevel, issuingOrganization, issueDate)
+                    divesLedger.connect(diver).addCertification(certLevel, issuingOrganization, issueDate)
                 ).to.be.revertedWith("Certification with the same level already exists for this diver.");
         
                 const certifications = await divesLedger.getCertifications(diver.address);

@@ -15,14 +15,12 @@ const Header = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isDivDisabled, setIsDivDisabled] = useState(false);
   
 
   const handleCheckboxChange = (event) => {
     const checked = event.target.checked;
     setIsTermsChecked(checked);
     setShowError(false);
-    setIsDivDisabled(checked);
   };
 
   const handleConnectButtonClick = () => {
@@ -32,7 +30,6 @@ const Header = () => {
     } else {
       setIsConnected(true);
       setErrorMessage("Connection ok !");
-      console.log("Connection ok !")
     }
   };
 
@@ -51,7 +48,7 @@ const Header = () => {
         <label>
           <input
             type="checkbox"
-            checked={isDivDisabled}
+            checked={isTermsChecked}
             onChange={handleCheckboxChange}
           />
          <GeneralConditions />
@@ -60,7 +57,7 @@ const Header = () => {
         {showError && (
           <p style={{ color: 'red' }}>{errorMessage}</p>
         )}
-        <div style={!isDivDisabled ? styles.disabledDiv : {}}>
+        <div style={!isTermsChecked ? styles.disabledDiv : {}}> 
           <ConnectButton label="Connect to DivesLedger" 
             onClick={handleConnectButtonClick} />
         </div>

@@ -1,5 +1,5 @@
 //export const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" // hardhat
-export const contractAddress = "0x5dd0728B9d60FBbd43d88aCBCE16994eeA7be0BE"; //sepolia
+export const contractAddress = "0x68B920aa9d82Bc627645B7D5e20605e16E2ffdC6"; //sepolia
 export const contractAbi = [
 	{
 		"inputs": [],
@@ -344,11 +344,6 @@ export const contractAbi = [
 	},
 	{
 		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_diver",
-				"type": "address"
-			},
 			{
 				"internalType": "uint256",
 				"name": "_certLevel",

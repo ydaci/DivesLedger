@@ -86,7 +86,7 @@ const GetCertifications = ({ getEvents }) => {
                 description: "The certification has been identified",
                 className: "bg-line-200"
               })
-              //refetchPage();
+              refetchPage();
         }
         if(errorConfirmation) {
                 toast({
@@ -95,7 +95,7 @@ const GetCertifications = ({ getEvents }) => {
                     duration: 3000,
                     isClosable: true,
                   })
-                  //refetchPage();
+                refetchPage();
         }
     }, [isSuccess, errorConfirmation])
 

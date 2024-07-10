@@ -1,3 +1,5 @@
+const { holesky } = require("viem/chains");
+
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-verify");
 require('dotenv').config()
@@ -21,4 +23,5 @@ module.exports = {
   etherscan: {
     apiKey: ETHERSCAN
   },
+  
 };
