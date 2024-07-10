@@ -121,8 +121,26 @@ const GetCertifications = ({ getEvents }) => {
               Get Diver certifications {setIsPending ? 'Loading...' : ''}
             </Button>
         </form>
+        {hash && 
+                <Alert className = "mb-4 bg-green-400">
+                    <RocketIcon className="h-4 w-4" />
+                    <AlertTitle>Information</AlertTitle>
+                    <AlertDescription>
+                        Transaction Hash: {hash}
+                    </AlertDescription>
+                </Alert>
+                }
+                {isConfirming && 
+                <Alert className = "mb-4 bg-green-400">
+                    <RocketIcon className="h-4 w-4" />
+                    <AlertTitle>Information</AlertTitle>
+                    <AlertDescription>
+                        Waiting for confirmation...
+                    </AlertDescription>
+                </Alert>
+              }
         {isSuccess && certifications && (
-        <Alert>
+        <Alert className = "mb-4 bg-green-400">
           <RocketIcon className="h-4 w-4" />
           <AlertTitle>Information</AlertTitle>
           <AlertDescription>
@@ -145,7 +163,7 @@ const GetCertifications = ({ getEvents }) => {
         </Alert>
       )}
                       {errorConfirmation && (
-                    <Alert>
+                    <Alert className = "mb-4 bg-red-400">
                         <RocketIcon className="h-4 w-4" />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>

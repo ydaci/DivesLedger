@@ -74,3 +74,9 @@
       @apply bg-background text-foreground;
     }
   }
+
+  .separator {
+    border: none;
+    border-top: 2px solid #ccc; /* Couleur et épaisseur de la ligne */
+    margin: 20px 0; /* Espace autour de la ligne */
+  }

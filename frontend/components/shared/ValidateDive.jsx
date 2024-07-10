@@ -10,8 +10,6 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
-import Event from "@/components/shared/Event";
-
 const ValidateDive = ({ getEvents }) => {
     const { address } = useAccount();
 
@@ -94,6 +92,24 @@ const validateDive = async () => {
             <Button onClick={validateDive} disabled={setIsPending} className="bg-blue-500 text-white rounded p-2">
               Validate Dive {setIsPending ? 'Loading...' : ''}
             </Button>
+            {hash && 
+                <Alert className = "mb-4 bg-green-400">
+                    <RocketIcon className="h-4 w-4" />
+                    <AlertTitle>Information</AlertTitle>
+                    <AlertDescription>
+                        Transaction Hash: {hash}
+                    </AlertDescription>
+                </Alert>
+              }
+            {isConfirming && 
+                <Alert className = "mb-4 bg-green-400">
+                    <RocketIcon className="h-4 w-4" />
+                    <AlertTitle>Information</AlertTitle>
+                    <AlertDescription>
+                        Waiting for confirmation...
+                    </AlertDescription>
+                </Alert>
+              }
             {isSuccess &&
                     <Alert>
                         <RocketIcon className="h-4 w-4" />
@@ -107,7 +123,7 @@ const validateDive = async () => {
                     </Alert>
                 }
                 {errorConfirmation && (
-                    <Alert>
+                    <Alert className="mb-4 bg-red-400">
                         <RocketIcon className="h-4 w-4" />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>

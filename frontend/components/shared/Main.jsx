@@ -108,6 +108,7 @@ const Main = () => {
                  <GetCertifications />
             </div>
             <br/>
+            <hr class="separator" />
             <div>
                  <h3 className="mb-4 text-4xl">Dives</h3>
                  <AddDive />

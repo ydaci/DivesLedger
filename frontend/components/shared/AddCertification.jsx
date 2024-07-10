@@ -238,8 +238,17 @@ const addCertification = async () => {
             <Button onClick={addCertification} disabled={setIsPending}  className="bg-blue-500 text-white rounded p-2">
               Add Certification {setIsPending ? 'Loading...' : ''}
             </Button>
+            {hash && 
+                <Alert className = "mb-4 bg-green-400">
+                    <RocketIcon className="h-4 w-4" />
+                    <AlertTitle>Information</AlertTitle>
+                    <AlertDescription>
+                        Transaction Hash: {hash}
+                    </AlertDescription>
+                </Alert>
+              }
             {isConfirming && 
-                <Alert>
+                <Alert className = "mb-4 bg-green-400">
                     <RocketIcon className="h-4 w-4" />
                     <AlertTitle>Information</AlertTitle>
                     <AlertDescription>
@@ -248,7 +257,7 @@ const addCertification = async () => {
                 </Alert>
                 }
             {isSuccess && 
-                <Alert>
+                <Alert className = "mb-4 bg-green-400">
                     <RocketIcon className="h-4 w-4" />
                     <AlertTitle>Information</AlertTitle>
                     <AlertDescription>
@@ -257,13 +266,13 @@ const addCertification = async () => {
                     <br/>
                     <AlertTitle>Transaction</AlertTitle>
                     <AlertDescription>
-                        Transaction Hash: {hash}
+                        Transaction confirmed
                     </AlertDescription>
                 </Alert>
                 }
                 {errorConfirmation && (
-                <Alert>
-                    <RocketIcon className = "mb-4 bg-red-400" />
+                <Alert className = "mb-4 bg-red-400">
+                    <RocketIcon className="h-4 w-4" />
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription>
                       {(errorConfirmation).shortMessage || errorConfirmation.message}
