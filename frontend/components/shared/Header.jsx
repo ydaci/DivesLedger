@@ -1,17 +1,28 @@
 'use client'
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GeneralConditions from "@/components/shared/GeneralConditions";
+
+const styles = {
+  disabledDiv: {
+    pointerEvents: 'none',
+    opacity: 0.5,
+  },
+};
 
 const Header = () => {
   const [isTermsChecked, setIsTermsChecked] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDivDisabled, setIsDivDisabled] = useState(false);
+  
 
   const handleCheckboxChange = (event) => {
-    setIsTermsChecked(event.target.checked);
-    setShowError(false); 
+    const checked = event.target.checked;
+    setIsTermsChecked(checked);
+    setShowError(false);
+    setIsDivDisabled(checked);
   };
 
   const handleConnectButtonClick = () => {
@@ -21,8 +32,15 @@ const Header = () => {
     } else {
       setIsConnected(true);
       setErrorMessage("Connection ok !");
+      console.log("Connection ok !")
     }
   };
+
+  useEffect(() => {
+    if (isTermsChecked) {
+      setShowError(false);
+    }
+  }, [isTermsChecked]);
 
   return (
     <>
@@ -30,25 +48,21 @@ const Header = () => {
         <p className="text-2xl font-bold text-gray-800 dark:text-white">DivesLedger</p>
       </div>
       <div>
-      {!isConnected && (
         <label>
           <input
             type="checkbox"
-            checked={isTermsChecked}
+            checked={isDivDisabled}
             onChange={handleCheckboxChange}
           />
          <GeneralConditions />
         </label>
-      )}
         
         {showError && (
           <p style={{ color: 'red' }}>{errorMessage}</p>
         )}
-        <div>
-        {isTermsChecked && (
-          <ConnectButton label="Connect to DivesLedger" disabled={!isTermsChecked}
+        <div style={!isDivDisabled ? styles.disabledDiv : {}}>
+          <ConnectButton label="Connect to DivesLedger" 
             onClick={handleConnectButtonClick} />
-        )}
         </div>
       </div>
     </>

@@ -17,7 +17,7 @@ const ValidateDive = ({ getEvents }) => {
 
     const [idDive, setIdDive] = useState('');
 
-    const { data: hash, isPending, error, writeContract } = useWriteContract();
+    const { data: hash, error, isPending: setIsPending, writeContract  } = useWriteContract();
 
 
 const validateDive = async () => {
@@ -91,8 +91,8 @@ const validateDive = async () => {
                 />
               </label>
             </div>
-            <Button onClick={validateDive} className="bg-blue-500 text-white rounded p-2">
-              Validate Dive
+            <Button onClick={validateDive} disabled={setIsPending} className="bg-blue-500 text-white rounded p-2">
+              Validate Dive {setIsPending ? 'Loading...' : ''}
             </Button>
             {isSuccess &&
                     <Alert>
@@ -111,7 +111,7 @@ const validateDive = async () => {
                         <RocketIcon className="h-4 w-4" />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>
-                            {(errorConfirmation?.shortMessage) || errorConfirmation.message}
+                            {(errorConfirmation.shortMessage) || errorConfirmation.message}
                         </AlertDescription>
                     </Alert>
                 )}
@@ -120,7 +120,7 @@ const validateDive = async () => {
                         <RocketIcon className="h-4 w-4" />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>
-                            {(error?.shortMessage) || error.message}
+                            {(error.shortMessage) || error.message}
                         </AlertDescription>
                     </Alert>
                 )}

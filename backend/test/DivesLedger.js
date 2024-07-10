@@ -206,6 +206,18 @@ const {
                 await expect(divesLedger.connect(instructor).validateDive(0))
                   .to.be.revertedWith("Dive is already validated.");
             });
+            it("Should return the current dive ID", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
+
+                // Now getCurrentDiveId must be equal to 0
+                expect(await divesLedger.getCurrentDiveId()).to.equal(0);
+        
+                 // Add a dive by the diver
+                 await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", "Richard Gasquet", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
+        
+                // Now getCurrentDiveId must have been incremented
+                expect(await divesLedger.getCurrentDiveId()).to.equal(1);
+            });
         });
         //Certifications management
         describe("Certifications management", function () {
@@ -271,6 +283,22 @@ const {
                 expect(certifications.length).to.equal(2);
                 expect(certifications[0].certLevel).to.equal(certData[0].level);
                 expect(certifications[1].certLevel).to.equal(certData[1].level);
+            });
+            it("Should not allow adding a duplicate certification", async function () {
+                const { divesLedger, diver } = await loadFixture(deployDivesLedger);
+                const certLevel = 1;
+                const issuingOrganization = "PADI";
+                const issueDate = Math.floor(Date.now() / 1000); // current timestamp in seconds
+        
+                await divesLedger.addCertification(diver.address, certLevel, issuingOrganization, issueDate);
+        
+                // Attempt to add the same certification again
+                await expect(
+                    divesLedger.addCertification(diver.address, certLevel, issuingOrganization, issueDate)
+                ).to.be.revertedWith("Certification with the same level already exists for this diver.");
+        
+                const certifications = await divesLedger.getCertifications(diver.address);
+                expect(certifications.length).to.equal(1); // Should still be 1
             });
         });
         describe("Mint management", function () {

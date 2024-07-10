@@ -1,4 +1,5 @@
-export const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+//export const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" // hardhat
+export const contractAddress = "0x5dd0728B9d60FBbd43d88aCBCE16994eeA7be0BE"; //sepolia
 export const contractAbi = [
 	{
 		"inputs": [],

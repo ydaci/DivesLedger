@@ -14,7 +14,7 @@ const GetCertifications = ({ getEvents }) => {
     const [addressDiver, setAddressDiver] = useState('');
     const [certifications, setCertifications] = useState(null);
 
-    const { data: hash, isPending, error, writeContract } = useWriteContract();
+    const { data: hash, error, isPending: setIsPending, writeContract } = useWriteContract();
 
       const getCertifications = async () => {
         if (addressDiver === "") {
@@ -86,7 +86,7 @@ const GetCertifications = ({ getEvents }) => {
                 description: "The certification has been identified",
                 className: "bg-line-200"
               })
-              refetchPage();
+              //refetchPage();
         }
         if(errorConfirmation) {
                 toast({
@@ -95,14 +95,14 @@ const GetCertifications = ({ getEvents }) => {
                     duration: 3000,
                     isClosable: true,
                   })
-                  refetchPage();
+                  //refetchPage();
         }
     }, [isSuccess, errorConfirmation])
 
     return (
         <div>
         <nav>
-            <div className="grow" ><p className="text-2xl font-bold text-gray-800 dark:text-white">Dive Log :</p></div>
+            <div className="grow" ><p className="text-2xl font-bold text-gray-800 dark:text-white">Diver certifications :</p></div>
         </nav>
         <form className="space-y-4">
         <div>
@@ -117,8 +117,8 @@ const GetCertifications = ({ getEvents }) => {
                 />
               </label>
             </div>
-            <Button onClick={getCertifications} className="bg-blue-500 text-white rounded p-2">
-              Get Diver certifications
+            <Button onClick={getCertifications} disabled={setIsPending} className="bg-blue-500 text-white rounded p-2">
+              Get Diver certifications {setIsPending ? 'Loading...' : ''}
             </Button>
         </form>
         {isSuccess && certifications && (
@@ -127,46 +127,41 @@ const GetCertifications = ({ getEvents }) => {
           <AlertTitle>Information</AlertTitle>
           <AlertDescription>
             Certifications got.
+            {certifications.length === 0 ? (
+        <p>0 certification for this diver</p>
+              ) : (
             <ul>
-        {certifications.map((certification, index) => (
-          <li key={index}>
-                  {certification.certLevel && <p>Diver level : {certification.certLevel}</p>}
-                  {certification.certName && <p>Diver Certification : {certification.certName}</p>}
-                  {certification.issuingOrganization && <p>Certification Issuing organization: {certification.issuingOrganization}</p>}
-                  {certification.issueDate && <p>Certification issue Date : {certification.issueDate}</p>}
-          </li>
-        ))}
-      </ul>
+                {certifications.map((certification, index) => (
+                     <li key={index}>
+                          {certification.certLevel && <p>Diver level : {certification.certLevel}</p>}
+                          {certification.certName && <p>Diver Certification : {certification.certName}</p>}
+                          {certification.issuingOrganization && <p>Certification Issuing organization: {certification.issuingOrganization}</p>}
+                          {certification.issueDate && <p>Certification issue Date : {certification.issueDate}</p>}
+                      </li>
+                ))}
+            </ul>
+          )}
           </AlertDescription>
         </Alert>
       )}
-      {getError && (
-        <Alert>
-          <RocketIcon className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {(getError?.shortMessage) || getError.message}
-          </AlertDescription>
-        </Alert>
-      )}
-      {errorConfirmation && (
-        <Alert>
-          <RocketIcon className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {(errorConfirmation?.shortMessage) || errorConfirmation.message}
-          </AlertDescription>
-        </Alert>
-      )}
-      {error && (
-        <Alert className="mb-4 bg-red-400">
-          <RocketIcon className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {(error?.shortMessage) || error.message}
-          </AlertDescription>
-        </Alert>
-      )}
+                      {errorConfirmation && (
+                    <Alert>
+                        <RocketIcon className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            {(errorConfirmation.shortMessage) || errorConfirmation.message}
+                        </AlertDescription>
+                    </Alert>
+                )}
+                {error && (
+                    <Alert className="mb-4 bg-red-400">
+                        <RocketIcon className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            {(error.shortMessage) || error.message}
+                        </AlertDescription>
+                    </Alert>
+                )}
         </div>
         
 

@@ -136,6 +136,15 @@ contract DivesLedger is ERC721, Ownable {
         string memory _issuingOrganization,
         uint256 _issueDate
     ) public {
+
+        // Check if an existing certification has been created before with this diver
+        Certification[] storage certifications = diverCertifications[_diver];
+        for (uint i = 0; i < certifications.length; i++) {
+            if (certifications[i].certLevel == _certLevel) {
+                revert("Certification with the same level already exists for this diver.");
+            }
+        }
+
         diverCertifications[_diver].push(Certification({
             certLevel: _certLevel,
             certName: getCertificationName(_certLevel),

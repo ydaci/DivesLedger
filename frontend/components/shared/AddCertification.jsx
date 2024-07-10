@@ -10,6 +10,13 @@ import { RocketIcon } from "@radix-ui/react-icons"
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
 const AddCertification = () => {
     const { address } = useAccount();
 
@@ -33,7 +40,7 @@ const AddCertification = () => {
         args: [addedCertLevel]
     })
 
-    const { data: hash, isPending, error, writeContract } = useWriteContract();
+    const { data: hash, error, isPending: setIsPending, writeContract } = useWriteContract();
 
 
 const addCertification = async () => {
@@ -138,7 +145,7 @@ const addCertification = async () => {
               description: "The certification has been added",
               className: "bg-line-200"
             })
-            refetchPage();
+            //refetchPage();
       }
       if(errorConfirmation) {
               toast({
@@ -147,7 +154,7 @@ const addCertification = async () => {
                   duration: 3000,
                   isClosable: true,
                 })
-                refetchPage();
+                //refetchPage();
           }
   }, [isSuccess, errorConfirmation])
 
@@ -171,7 +178,7 @@ const addCertification = async () => {
           <form className="space-y-4">
             <div>
               <label>
-                Diver address :
+                Diver address * :
                 <Input
                   type="text"
                   value={diver}
@@ -182,20 +189,30 @@ const addCertification = async () => {
               </label>
             </div>
             <div>
-              <label>
-                Certification Level :
-                <Input
-                  type="text"
-                  value={certLevel}
-                  onChange={(e) => setCertLevel(e.target.value)}
-                  required
-                  className="border rounded p-2 w-full"
-                />
-              </label>
-            </div>
+              <label> Certification Level * : 
+            <select
+              value={certLevel}
+              onChange={(e) => setCertLevel(e.target.value)}
+              required
+              className="border rounded p-2 w-full"
+            >
+          <option value="">Select a level</option>
+          <option value="1">Level 1 - Diver 1 star / Open Water Diver</option>
+          <option value="2">Level 2 - Diver 2 stars / Advanced Open Water Diver</option>
+          <option value="3">Level 3 - Diver 3 stars / Rescue Diver</option>
+          <option value="4">Level 4 - Confirmed diver / Divemaster</option>
+          <option value="5">Level 5 - Instructor assistant</option>
+          <option value="6">Level 6 - Instructor / Dive Leader</option>
+          <option value="7">Level 7 - Instructor 2 stars</option>
+          <option value="8">Level 8 - Instructor 3 stars</option>
+          <option value="9">Level 9 - Instructor 4 stars</option>
+          <option value="10">Level 10 - Instructor 5 stars</option>
+          </select>
+          </label>
+          </div>
             <div>
               <label>
-                Issuing organization :
+                Issuing organization * :
                 <Input
                   type="text"
                   value={issuingOrganization}
@@ -207,7 +224,7 @@ const addCertification = async () => {
             </div>
             <div>
               <label>
-                Issuing date :
+                Issuing date * :
                 <Input
                   type="date"
                   value={issueDate}
@@ -218,9 +235,18 @@ const addCertification = async () => {
                 />
               </label>
             </div>
-            <Button onClick={addCertification} className="bg-blue-500 text-white rounded p-2">
-              Add Certification
+            <Button onClick={addCertification} disabled={setIsPending}  className="bg-blue-500 text-white rounded p-2">
+              Add Certification {setIsPending ? 'Loading...' : ''}
             </Button>
+            {isConfirming && 
+                <Alert>
+                    <RocketIcon className="h-4 w-4" />
+                    <AlertTitle>Information</AlertTitle>
+                    <AlertDescription>
+                        Waiting for confirmation...
+                    </AlertDescription>
+                </Alert>
+                }
             {isSuccess && 
                 <Alert>
                     <RocketIcon className="h-4 w-4" />
@@ -240,7 +266,7 @@ const addCertification = async () => {
                     <RocketIcon className = "mb-4 bg-red-400" />
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription>
-                      {(errorConfirmation?.shortMessage) || errorConfirmation.message}
+                      {(errorConfirmation).shortMessage || errorConfirmation.message}
                     </AlertDescription>
                 </Alert>
                 )}
@@ -249,7 +275,7 @@ const addCertification = async () => {
                     <RocketIcon className="h-4 w-4" />
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription>
-                      {(errorConfirmation?.shortMessage) || errorConfirmation.message}
+                      {(error).shortMessage || error.message}
                     </AlertDescription>
                 </Alert>
                 )}

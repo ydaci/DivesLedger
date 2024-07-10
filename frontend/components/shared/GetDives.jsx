@@ -14,7 +14,7 @@ const GetDives = ({ getEvents }) => {
     const [addressDiver, setAddressDiver] = useState('');
     const [dives, setDives] = useState(null);
 
-    const { data: hash, isPending, error, writeContract } = useWriteContract();
+    const { data: hash, error, isPending: setIsPending, writeContract } = useWriteContract();
 
       const getDives = async () => {
         if (addressDiver === "") {
@@ -61,7 +61,7 @@ const GetDives = ({ getEvents }) => {
                   ...dive,
                 id: dive.id.toString(),
                 diver:dive.diver.toString(),
-                diverSurname:dive.id.toString(),
+                diverSurname:dive.diverSurname.toString(),
                 diverFirstName:dive.diverFirstName.toString(),
                 otherDiverNames:dive.otherDiverNames.toString(),
                 location:dive.location.toString(),
@@ -124,8 +124,8 @@ const GetDives = ({ getEvents }) => {
                 />
               </label>
             </div>
-            <Button onClick={getDives} className="bg-blue-500 text-white rounded p-2">
-              Get Dive Log
+            <Button onClick={getDives} disabled={setIsPending} className="bg-blue-500 text-white rounded p-2">
+              Get Dive Log {setIsPending ? 'Loading...' : ''}
             </Button>
         </form>
         {isSuccess && dives && (
@@ -134,52 +134,48 @@ const GetDives = ({ getEvents }) => {
           <AlertTitle>Information</AlertTitle>
           <AlertDescription>
             Dives got.
-            <ul>
-        {dives.map((dive, index) => (
-          <li key={index}>
-                  {dive.diver && <p>Diver: {dive.diver}</p>}
-                  {dive.diverSurname && <p>Diver Surname: {dive.diverSurname}</p>}
-                  {dive.diverFirstName && <p>Diver First Name: {dive.diverFirstName}</p>}
-                  {dive.otherDiverNames && <p>Accompany divers names: {dive.otherDiverNames}</p>}
-                  {dive.location && <p>Location: {dive.location}</p>}
-                  {dive.date && <p>Date: {dive.date}</p>}
-                  {dive.depth && <p>Depth: {dive.depth}</p>}
-                  {dive.duration && <p>Duration: {dive.duration}</p>}
-                  {dive.notes && <p>Notes: {dive.notes}</p>}
-                  {dive.validated && <p>Validated: {dive.validated}</p>}
-          </li>
-        ))}
-      </ul>
+            {dives.length === 0 ? (
+                <p>0 dive for this diver</p>
+                  ) : (
+              <ul>
+              {dives.map((dive, index) => (
+                <li key={index}>
+                      {dive.id && <p>Dive id : {dive.id}</p>}
+                      {dive.diver && <p>Diver: {dive.diver}</p>}
+                      {dive.diverSurname && <p>Diver Surname: {dive.diverSurname}</p>}
+                      {dive.diverFirstName && <p>Diver First Name: {dive.diverFirstName}</p>}
+                      {dive.otherDiverNames && <p>Accompany divers names: {dive.otherDiverNames}</p>}
+                      {dive.location && <p>Location: {dive.location}</p>}
+                      {dive.date && <p>Date: {dive.date}</p>}
+                      {dive.depth && <p>Depth: {dive.depth}</p>}
+                      {dive.duration && <p>Duration: {dive.duration}</p>}
+                      {dive.notes && <p>Notes: {dive.notes}</p>}
+                      {dive.validated && <p>Validated: {dive.validated}</p>}
+                  </li>
+                ))}
+            </ul>
+        )}
           </AlertDescription>
         </Alert>
       )}
-      {getError && (
-        <Alert>
-          <RocketIcon className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {(getError?.shortMessage) || getError.message}
-          </AlertDescription>
-        </Alert>
-      )}
-      {errorConfirmation && (
-        <Alert>
-          <RocketIcon className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {(errorConfirmation?.shortMessage) || errorConfirmation.message}
-          </AlertDescription>
-        </Alert>
-      )}
-      {error && (
-        <Alert className="mb-4 bg-red-400">
-          <RocketIcon className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {(error?.shortMessage) || error.message}
-          </AlertDescription>
-        </Alert>
-      )}
+                      {errorConfirmation && (
+                    <Alert>
+                        <RocketIcon className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            {(errorConfirmation?.shortMessage) || errorConfirmation.message}
+                        </AlertDescription>
+                    </Alert>
+                )}
+                {error && (
+                    <Alert className="mb-4 bg-red-400">
+                        <RocketIcon className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            {(error?.shortMessage) || error.message}
+                        </AlertDescription>
+                    </Alert>
+                )}
         </div>
         
 

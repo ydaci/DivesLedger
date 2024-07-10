@@ -25,7 +25,7 @@ const AddDive = () => {
     const [events, setEvents] = useState([]);
     const today = new Date().toISOString().split('T')[0];
 
-    const { data: hash, isPending, error, writeContract } = useWriteContract();
+    const { data: hash, error, isPending: setIsPending, writeContract  } = useWriteContract();
 
 
 const addDive = async () => {
@@ -92,8 +92,6 @@ const addDive = async () => {
   };
 
     const { toast } = useToast();
-
-    //Pour récupérer idDive, reprendreStructure Event d'AlyraStorage
 
     const { data: diveCurrentId, error: getError, isPending: getIsPending, refetch } = 
     useReadContract({
@@ -275,15 +273,15 @@ const addDive = async () => {
                 />
               </label>
             </div>
-            <Button onClick={addDive} className="bg-blue-500 text-white rounded p-2">
-              Add Dive
+            <Button onClick={addDive} disabled={setIsPending} className="bg-blue-500 text-white rounded p-2">
+              Add Dive {setIsPending ? 'Loading...' : ''}
             </Button>
             {isSuccess &&
                     <Alert>
                         <RocketIcon className="h-4 w-4" />
                         <AlertTitle>Information</AlertTitle>
                         <AlertDescription>
-                            Dive {diveCurrentId?.toString()} added but not validated.
+                            Dive {diveCurrentId ? parseInt(diveCurrentId) - 1 : ''} added but not validated.
                         </AlertDescription>
                         <AlertTitle>Transaction</AlertTitle>
                         <AlertDescription>
@@ -296,7 +294,7 @@ const addDive = async () => {
                         <RocketIcon className="h-4 w-4" />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>
-                            {(errorConfirmation?.shortMessage) || errorConfirmation.message}
+                            {(errorConfirmation.shortMessage) || errorConfirmation.message}
                         </AlertDescription>
                     </Alert>
                 )}
@@ -305,7 +303,7 @@ const addDive = async () => {
                         <RocketIcon className="h-4 w-4" />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>
-                            {(error?.shortMessage) || error.message}
+                            {(error.shortMessage) || error.message}
                         </AlertDescription>
                     </Alert>
                 )}
