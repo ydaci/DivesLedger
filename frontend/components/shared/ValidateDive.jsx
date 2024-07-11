@@ -138,7 +138,7 @@ const validateDive = async () => {
                 </Alert>
               }
             {isSuccess &&
-                    <Alert>
+                    <Alert className = "mb-4 bg-green-400">
                         <RocketIcon className="h-4 w-4" />
                         <AlertTitle>Information</AlertTitle>
                         <AlertDescription>
