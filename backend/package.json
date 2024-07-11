@@ -9,6 +9,7 @@
     "coverage": "hardhat coverage"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.2"
+    "@openzeppelin/contracts": "^5.0.2",
+    "viem": "^2.17.3"
   }
 }
