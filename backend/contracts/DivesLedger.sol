@@ -84,8 +84,6 @@ contract DivesLedger is ERC721, Ownable {
     /*************************************
      *             Functions              *
      **************************************/
-    //Pas le owner mais le plongeur décide de qui sera son instructeur. Le programme doit désigner s'il est bien autorisé.
-    //Faire différenciation entre mainDiver et accompagnants
 
     function addDive(
         string memory _location,
@@ -168,6 +166,7 @@ contract DivesLedger is ERC721, Ownable {
         Certification[] storage certifications = diverCertifications[
             msg.sender
         ];
+        // for is used because there can be maximum 10 unique certifications on a diver
         for (uint i = 0; i < certifications.length; i++) {
             if (certifications[i].certLevel == _certLevel) {
                 revert(
@@ -193,7 +192,7 @@ contract DivesLedger is ERC721, Ownable {
         );
     }
 
-    // A diver with a certLevel >=6 (Dive Leader - Guide de palanqué) can be an instructor
+    // Only a diver with a certLevel >=6 (Dive Leader - Guide de palanqué) can be an instructor
     function isInstructor(address _diver) public view returns (bool) {
         Certification[] storage certifications = diverCertifications[_diver];
         for (uint256 i = 0; i < certifications.length; i++) {

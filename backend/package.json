@@ -2,6 +2,8 @@
   "name": "hardhat-project",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "ethers": "^6.13.1",
     "hardhat": "^2.22.5"
   },
   "scripts": {
