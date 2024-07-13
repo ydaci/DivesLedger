@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies
+      - name: Install dependencies - backend
         run: |
           npm install --force
           npm install @nomiclabs/hardhat-ethers@^2.2.3 --force
@@ -67,7 +67,7 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies (frontend)
+      - name: Install dependencies - frontend
         run: |
           cd frontend
           npm install
@@ -76,3 +76,12 @@ jobs:
         run: |
           cd frontend
           npm run build
+
+          - name: Deploy on Vercel
+          env:
+            VERCEL_ID: ${{ secrets.VERCEL_ID }}
+          run: |
+            cd frontend
+            DEPLOY_URL=$(npx vercel --prod --token $VERCEL_ID | tail -n 1)
+            echo "Deployment URL: $DEPLOY_URL"
+            echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_ENV
