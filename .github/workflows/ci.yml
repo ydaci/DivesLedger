@@ -1,4 +1,4 @@
-name: CI/CD for DivesLedger
+name: CI/CD for DivesLedger backend & frontend
 
 on:
   push:
