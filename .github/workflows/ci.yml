@@ -78,6 +78,14 @@ jobs:
           cd frontend
           npm run build
 
+          - name: Debug environment variables
+          run: |
+            echo "ALCHEMY=${{ env.ALCHEMY }}"
+            echo "PK=${{ env.PK }}"
+            echo "ETHERSCAN=${{ env.ETHERSCAN }}"
+            echo "VERCEL_TOKEN=${{ env.VERCEL_TOKEN }}"
+          working-directory: backend
+
       - name: Deploy on Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
