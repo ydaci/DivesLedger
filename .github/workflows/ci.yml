@@ -54,4 +54,25 @@ jobs:
       - name: Deploy contract
         run: npx hardhat run --network localhost scripts/DivesLedger.js
         working-directory: backend
-        if: github.ref == 'refs/heads/main' # Déployer uniquement sur la branche principale
+        if: github.ref == 'refs/heads/main'
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies (frontend)
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build Next.js application
+        run: |
+          cd frontend
+          npm run build
