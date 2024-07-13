@@ -24,7 +24,9 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install @nomiclabs/hardhat-ethers@^2.2.3 --force
         working-directory: backend
 
       - name: Compile contracts
