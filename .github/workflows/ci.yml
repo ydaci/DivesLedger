@@ -33,6 +33,18 @@ jobs:
         run: npx hardhat compile
         working-directory: backend
 
+      - name: Set up environment variables
+        run: |
+          echo "ALCHEMY=${{ secrets.ALCHEMY }}" >> $GITHUB_ENV
+          echo "PK=${{ secrets.PK }}" >> $GITHUB_ENV
+          echo "ETHERSCAN=${{ secrets.ETHERSCAN }}" >> $GITHUB_ENV
+        working-directory: backend
+
       - name: Run tests
         run: npx hardhat test
         working-directory: backend
+
+      - name: Deploy contract
+        run: npx hardhat run scripts/deploy.js --network localhost
+        working-directory: backend
+        if: github.ref == 'refs/heads/main' # Déployer uniquement sur la branche principale

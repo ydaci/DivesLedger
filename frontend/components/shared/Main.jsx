@@ -69,6 +69,7 @@ const Main = () => {
                  <ValidateDive />
                  <GetDives />
             </div>
+            <hr class="separator" />
             <br/>
         </nav>
 
