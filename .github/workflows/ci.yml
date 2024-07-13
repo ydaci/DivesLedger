@@ -40,6 +40,13 @@ jobs:
           echo "ETHERSCAN=${{ secrets.ETHERSCAN }}" >> $GITHUB_ENV
         working-directory: backend
 
+      - name: Start Hardhat node
+        run: npx hardhat node &
+        working-directory: backend
+
+      - name: Wait for Hardhat node to start
+        run: sleep 10
+
       - name: Run tests
         run: npx hardhat test
         working-directory: backend
