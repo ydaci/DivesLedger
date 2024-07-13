@@ -45,6 +45,6 @@ jobs:
         working-directory: backend
 
       - name: Deploy contract
-        run: npx hardhat run scripts/DivesLedger.js --network localhost
+        run: npx hardhat run --network localhost scripts/DivesLedger.js
         working-directory: backend
         if: github.ref == 'refs/heads/main' # Déployer uniquement sur la branche principale
