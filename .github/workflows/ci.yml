@@ -74,6 +74,9 @@ jobs:
           cd frontend
           npm run build
 
+      - name: Check Vercel Token
+        run: echo "VERCEL_TOKEN=${{ secrets.VERCEL_TOKEN }}"
+
       - name: Deploy on Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
