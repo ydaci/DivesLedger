@@ -76,7 +76,7 @@ jobs:
 
       - name: Deploy on Vercel
         env:
-          VERCEL_TOKEN: UB6avaQcabrojrZHSm2ZrUaY
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           npm install -g vercel
           cd frontend  # Assurez-vous que le chemin d'accès est correct pour accéder à votre application frontend
