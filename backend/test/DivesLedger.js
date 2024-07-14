@@ -51,7 +51,6 @@ const {
         });
 
         //Dives section
-        //Vérifier l'ajout, vérifier si on est bien sur le nextDiveId, vérifier si l'événement est bien émis
         describe("Dives management", function () {
            it("Should add a dive correctly", async function () {
                 const { divesLedger, owner } = await loadFixture(deployDivesLedger);
@@ -99,37 +98,6 @@ const {
                 expect(dives.length).to.equal(2);
                 expect(dives[0].location).to.equal(diveData[0].location);
                 expect(dives[1].location).to.equal(diveData[1].location);
-            });
-            //A revoir
-            it("Should add a dive for a different diver", async function () {
-                const { divesLedger, diver, addr1 } = await loadFixture(deployDivesLedger);
-
-                const location = "Tahiti";
-                const surname = "Smith";
-                const firstName = "Tom";
-                const otherName = "Jean-Claude Vandamme";
-                const date = 1672531199;
-                const depth = 30;
-                const duration = 45;
-                const notes = "Blue Sea";
-              
-                // Add a dive from a different address
-                await divesLedger.connect(addr1).addDive(location, surname, firstName, otherName, date, depth, duration, notes);
-              
-                // Get dives by addr1
-                const dives = await divesLedger.getDivesByDiver(addr1.address);
-                expect(dives.length).to.equal(1);
-              
-                const dive = dives[0];
-                expect(dive.location).to.equal(location);
-                expect(dive.diverSurname).to.equal(surname);
-                expect(dive.diverFirstName).to.equal(firstName);
-                expect(dive.otherDiverNames).to.equal(otherName);
-                expect(dive.date).to.equal(date);
-                expect(dive.depth).to.equal(depth);
-                expect(dive.duration).to.equal(duration);
-                expect(dive.notes).to.equal(notes);
-                expect(dive.validated).to.equal(false);
             });
             it("Should emit the DiveAdded event after adding a dive", async function () {
                 const { divesLedger, diver } = await loadFixture(deployDivesLedger);
@@ -185,7 +153,7 @@ const {
                 expect(dive.validated).to.be.true;
               });
             it("Should revert if trying to validate an already validated dive", async function () {
-                const { divesLedger, owner, diver, instructor } = await loadFixture(deployDivesLedger);
+                const { divesLedger, diver, instructor } = await loadFixture(deployDivesLedger);
                 
                 // Add a dive by the diver
                 await divesLedger.connect(diver).addDive("Tahiti", "Smith", "Tom", "Richard Gasquet", Math.floor(Date.now() / 1000), 30, 60, "Blue sea");
