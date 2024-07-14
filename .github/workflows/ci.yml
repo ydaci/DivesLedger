@@ -29,10 +29,6 @@ jobs:
           npm install @nomiclabs/hardhat-ethers@^2.2.3 --force
         working-directory: backend
 
-      - name: Compile contracts
-        run: npx hardhat compile
-        working-directory: backend
-
       - name: Set up environment variables
         run: |
           echo "ALCHEMY=${{ secrets.ALCHEMY }}" >> $GITHUB_ENV
