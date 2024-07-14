@@ -75,7 +75,10 @@ jobs:
           npm run build
 
       - name: Deploy on Vercel
+        env:
+          VERCEL_TOKEN: ${{ env.VERCEL_TOKEN }}
         run: |
           npm install -g vercel
           cd frontend
-          vercel --prod --token UB6avaQcabrojrZHSm2ZrUaY
+          vercel --prod --token $VERCEL_TOKEN
+        working-directory: frontend
