@@ -1,13 +1,7 @@
 'use client';
 import { useState, useEffect } from "react";
 
-import { contractAddress } from "@/constants";
-
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-
-import { parseAbiItem } from "viem";
-
-import { publicClient } from "@/utils/client";
 
 import AddDive from "@/components/shared/AddDive";
 import AddCertification from "@/components/shared/AddCertification";
@@ -17,9 +11,6 @@ import GetCertifications  from "@/components/shared/GetCertifications";
 
 const Main = () => {
 
-     const { address } = useAccount();
-
-    const [events, setEvents] = useState([]);
 
     const { data: hash, error, isPending: setIsPending, writeContract } = useWriteContract({
      mutation: {

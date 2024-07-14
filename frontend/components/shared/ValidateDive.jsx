@@ -27,7 +27,7 @@ const validateDive = async () => {
     if (idDive === "") {
       toast({
         title: "Error",
-        description: "Please add a valid address diver",
+        description: "Please add an valid dive id",
         className: 'bg-red-600'
       });
     } 

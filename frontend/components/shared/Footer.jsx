@@ -24,8 +24,10 @@ const Footer = ({children}) => {
     <AccordionItem value="item-1">
          <AccordionTrigger>FAQ : </AccordionTrigger>
             <AccordionContent>
-                Question 1 <br/>
-                Question 2  <br/>
+                Question 1 ?<br/>
+                Réponse 1.<br/>
+                Question 2 ?<br/>
+                Réponse 2.<br/>
             </AccordionContent>
         </AccordionItem>
     </Accordion>
