@@ -15,9 +15,7 @@ import {
 //  sepolia
 //} from 'wagmi/chains';
 
-//import { sepolia } from '@/utils/sepolia';
-
-import { http } from 'wagmi';
+import { sepolia } from '@/utils/sepolia';
 
 import {
   QueryClientProvider,
@@ -27,7 +25,7 @@ import {
 const config = getDefaultConfig({
   appName: 'DivesLedger',
   projectId: '4ed8cac7c1ed67e0ab135168a0239487',
-  chains: [hardhat],
+  chains: [hardhat, sepolia],
   //chains: [sepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });

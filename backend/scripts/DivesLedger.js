@@ -11,20 +11,7 @@ async function main() {
     `DivesLedger deployed to ${divesLedger.target}`
     );
    }
-runTests();
-
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
-
-// Launch the hardhat tests
-async function runTests() {
-  console.log("Running automated tests...");
-
-  await hre.run("test", {
-    files: "test/DivesLedger.js"
-  });
-
-  console.log("Tests completed.");
-}
