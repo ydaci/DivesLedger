@@ -74,12 +74,9 @@ jobs:
           cd frontend
           npm run build
 
-      - name: Check Vercel Token
-        run: echo "VERCEL_TOKEN=${{ secrets.VERCEL_TOKEN }}"
-
       - name: Deploy on Vercel
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TOKEN: UB6avaQcabrojrZHSm2ZrUaY
         run: |
           npm install -g vercel
           cd frontend  # Assurez-vous que le chemin d'accès est correct pour accéder à votre application frontend
